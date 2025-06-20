@@ -1,0 +1,21 @@
+<% if (user) { %>
+    <%- include('partials/header') %>
+    <main class="container">
+        <div class="card">
+            <h2>ようこそ、<%= user.username %>さん</h2>
+            <p>ここからあなたの物語が始まります。</p>
+            <a href="/novels/new" class="btn btn-primary" style="margin-top: 1rem;">新しい小説を書く</a>
+        </div>
+        </main>
+    <%- include('partials/footer') %>
+<% } else { %>
+    <%- include('partials/header') %>
+    <main class="hero-section">
+        <h1>物語の宇宙へ、<br>ダイブせよ。</h1>
+        <p class="subtitle">薩摩ノベルズは、あなたの創造力を解き放つ場所。書き、読み、世界と繋がろう。</p>
+        <div class="cta-buttons">
+            <a href="/register" class="btn btn-primary">今すぐ始める</a>
+            <a href="/login" class="btn btn-secondary">ログイン</a>
+        </div>
+    </main>
+    <% } %>

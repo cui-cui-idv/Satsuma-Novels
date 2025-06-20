@@ -1,0 +1,79 @@
+// app.js
+
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const admin = require('firebase-admin');
+const crypto = require('crypto');
+
+// --- Firebase Admin SDKの初期化 ---
+const serviceAccount = require('./serviceAccountKey.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+// --- Expressアプリケーションのセットアップ ---
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// --- ミドルウェアの設定 ---
+app.use(express.json()); // JSON形式のリクエストボディをパース
+app.use(express.urlencoded({ extended: true })); // URLエンコードされたリクエストボディをパース
+app.use(express.static('public')); // publicディレクトリを静的ファイル配信用に設定
+app.use(cookieParser());
+
+// セッション管理
+app.use(session({
+    secret: 'satsuma-novels-secret-key', // 推測されにくい秘密鍵に変更してください
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60 * 60 * 1000 } // 1時間
+}));
+
+// ビューエンジンの設定
+app.set('view engine', 'ejs');
+
+// --- グローバル変数 ---
+// 全てのビューでユーザー情報とFirebase設定を使えるようにする
+app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    // GravatarのURLを生成するヘルパー関数
+    res.locals.getGravatarUrl = (email) => {
+        if (!email) {
+            // メールアドレスがない場合のデフォルト画像
+            return 'https://www.gravatar.com/avatar/?d=retro';
+        }
+        const trimmedEmail = email.trim().toLowerCase();
+        const hash = crypto.createHash('md5').update(trimmedEmail).digest('hex');
+        // s=サイズ(ピクセル), d=デフォルト画像の種類(retroは8bit風)
+        return `https://www.gravatar.com/avatar/${hash}?s=200&d=retro`;
+    };
+    res.locals.firebaseConfig = {
+        apiKey: process.env.FIREBASE_API_KEY,
+        authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+        appId: process.env.FIREBASE_APP_ID
+    };
+    next();
+});
+
+// --- ルーティング ---
+const indexRoutes = require('./routes/indexRoutes');
+const authRoutes = require('./routes/authRoutes');
+const novelRoutes = require('./routes/novelRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+
+app.use('/', indexRoutes);
+app.use('/', authRoutes);
+app.use('/', novelRoutes);
+app.use('/', adminRoutes);
+app.use('/', profileRoutes);
+
+// --- サーバーの起動 ---
+app.listen(PORT, () => {
+  console.log(`サーバーがポート${PORT}で起動しました: http://localhost:${PORT}`);
+});

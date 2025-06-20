@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+    <h2>ユーザー管理</h2>
+    <div class="card" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid var(--border-color);">
+                    <th style="padding: 1rem;">ユーザー名</th>
+                    <th style="padding: 1rem;">メールアドレス</th>
+                    <th style="padding: 1rem;">役割</th>
+                    <th style="padding: 1rem;">登録日時</th>
+                    <th style="padding: 1rem;">アクション</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(u => { %>
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 1rem;"><%= u.username %></td>
+                        <td style="padding: 1rem;"><%= u.email %></td>
+                        <td style="padding: 1rem;">
+                            <form action="/admin/users/update-role" method="POST">
+                                <input type="hidden" name="uid" value="<%= u.uid %>">
+                                <select name="role" onchange="this.form.submit()">
+                                    <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>admin</option>
+                                    <option value="sub-admin" <%= u.role === 'sub-admin' ? 'selected' : '' %>>sub-admin</option>
+                                    <option value="moderator" <%= u.role === 'moderator' ? 'selected' : '' %>>moderator</option>
+                                    <option value="general" <%= u.role === 'general' ? 'selected' : '' %>>general</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td style="padding: 1rem;"><%= u.createdAt %></td>
+                        <td style="padding: 1rem;">
+                            <form action="/admin/users/delete" method="POST" onsubmit="return confirm('本当にこのユーザーを削除しますか？\nこの操作は元に戻せません。')">
+                                <input type="hidden" name="uid" value="<%= u.uid %>">
+                                <button type="submit" class="btn-secondary" style="background: var(--accent-color); padding: 0.5rem 1rem;">削除</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

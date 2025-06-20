@@ -1,0 +1,374 @@
+/* --- グローバル & 変数定義 --- */
+:root {
+    --bg-deep: #121212;
+    --bg-surface: #1E1E1E;
+    --font-primary: #EAEAEA;
+    --font-secondary: #A0A0A0;
+    --accent-primary: #00BFFF; /* DeepSkyBlue */
+    --accent-secondary: #8A2BE2; /* BlueViolet */
+    --accent-gradient: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* --- 基本設定 & スクロールバー --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--font-primary);
+    background-color: var(--bg-deep);
+    line-height: 1.7;
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-secondary);
+}
+
+/* --- ヘッダー --- */
+.site-header {
+    padding: 1.5rem 2rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    background: rgba(18, 18, 18, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+}
+.site-header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.site-header .logo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.site-header .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+.site-header .nav-links a {
+    color: var(--font-secondary);
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+.site-header .nav-links a:hover {
+    color: var(--font-primary);
+}
+
+/* --- コンテンツコンテナ --- */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 8rem 2rem 2rem; /* ヘッダーの高さ分を確保 */
+}
+
+/* --- ログイン前ヒーローセクション --- */
+.hero-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    background: var(--bg-deep) url('data:image/svg+xml,...'); /* ダミーの背景パターン */
+}
+.hero-section h1 {
+    font-size: clamp(2.5rem, 8vw, 5rem); /* 可変フォントサイズ */
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    animation: fadeInDown 1s ease-out;
+}
+.hero-section .subtitle {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    color: var(--font-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    animation: fadeInUp 1s ease-out 0.5s;
+    animation-fill-mode: backwards;
+}
+.hero-section .cta-buttons {
+    display: flex;
+    gap: 1.5rem;
+    animation: fadeInUp 1s ease-out 1s;
+    animation-fill-mode: backwards;
+}
+
+/* --- 認証ページ（ログイン・登録） --- */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+}
+.auth-form-wrapper {
+    width: 100%;
+    max-width: 450px;
+    background: rgba(30, 30, 30, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 3rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    animation: fadeIn 0.5s ease-out;
+}
+.auth-form-wrapper h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--font-primary);
+}
+.auth-form-wrapper form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.auth-form-wrapper .input-group {
+    position: relative;
+}
+.auth-form-wrapper input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--font-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+.auth-form-wrapper input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+/* --- ボタン --- */
+.btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    border: 2px solid transparent;
+    border-radius: 50em;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+}
+.btn-secondary {
+    background: transparent;
+    border-image: var(--accent-gradient) 1;
+    color: var(--font-primary);
+}
+.btn-secondary:hover {
+    background: var(--accent-gradient);
+    color: white;
+    border-color: transparent;
+    transform: scale(1.05);
+}
+.auth-form-wrapper .btn {
+    margin-top: 1rem;
+    padding: 1rem;
+}
+
+/* --- カード --- */
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px 0 var(--shadow-color);
+}
+.card-title {
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-primary);
+}
+
+/* --- アニメーション --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 小説エディタ画面 --- */
+.editor-container {
+    max-width: 1400px; /* 通常のコンテナより幅広に */
+}
+
+.editor-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* メイン執筆エリア */
+.editor-main {
+    flex: 3; /* サイドバーの3倍の幅を取る */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.novel-title-input {
+    background: none;
+    border: none;
+    color: var(--font-primary);
+    font-size: 2.5rem;
+    font-weight: 700;
+    padding: 0.5rem 0;
+    width: 100%;
+    border-bottom: 1px solid var(--border-color);
+}
+.novel-title-input:focus {
+    outline: none;
+    border-bottom-color: var(--accent-primary);
+}
+
+.novel-content-textarea {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--font-primary);
+    font-family: 'Noto Serif JP', serif; /* 明朝体フォントを適用 */
+    font-size: 1.1rem;
+    line-height: 1.8;
+    padding: 2rem;
+    width: 100%;
+    min-height: 70vh; /* 高さを確保 */
+    resize: vertical;
+}
+.novel-content-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+}
+
+/* サイドバー */
+.editor-sidebar {
+    flex: 1;
+    position: sticky;
+    top: 120px; /* ヘッダーの高さ + 余白 */
+}
+
+.sidebar-card {
+    background: var(--bg-surface);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sidebar-card label {
+    font-weight: 700;
+    color: var(--font-secondary);
+}
+
+.sidebar-card textarea,
+.sidebar-card select {
+    width: 100%;
+    background: var(--bg-deep);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: var(--font-primary);
+    font-size: 0.9rem;
+}
+
+.sidebar-card textarea:focus,
+.sidebar-card select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.sidebar-card .btn {
+    width: 100%;
+}
+
+/* --- プロフィール編集: 自己紹介入力欄 --- */
+.bio-textarea {
+    width: 100%;
+    min-height: 150px;
+    background: var(--bg-deep); /* 背景を少し濃くして差別化 */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: var(--font-primary);
+    font-size: 1rem;
+    line-height: 1.7;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.bio-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    background-color: var(--bg-surface);
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+}
+
+/* スクロールバーのスタイル（すでにあれば不要） */
+.bio-textarea::-webkit-scrollbar {
+    width: 8px;
+}
+.bio-textarea::-webkit-scrollbar-track {
+    background: var(--bg-surface);
+    border-radius: 4px;
+}
+.bio-textarea::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 4px;
+}

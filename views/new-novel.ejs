@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+
+<main class="container editor-container">
+    <form action="/novels" method="POST">
+        <div class="editor-layout">
+            <div class="editor-main">
+                <input type="text" id="title" name="title" class="novel-title-input" placeholder="小説のタイトル" required>
+                <textarea id="content" name="content" class="novel-content-textarea" placeholder="ここに物語を綴る..." required></textarea>
+            </div>
+
+            <aside class="editor-sidebar">
+                <div class="sidebar-card">
+                    <div>
+                        <label for="description">あらすじ（任意）</label>
+                        <textarea id="description" name="description" rows="5"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="status">公開ステータス</label>
+                        <select id="status" name="status">
+                            <option value="published">公開</option>
+                            <option value="draft">下書き</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">投稿する</button>
+                </div>
+            </aside>
+        </div>
+    </form>
+</main>
+
+<%- include('partials/footer') %>

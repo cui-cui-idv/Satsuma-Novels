@@ -1,0 +1,79 @@
+const admin = require('firebase-admin');
+const db = admin.firestore();
+
+exports.showProfilePage = async (req, res) => {
+    try {
+        const userId = req.session.user.uid;
+        const novelsSnapshot = await db.collection('novels')
+                                     .where('authorId', '==', userId)
+                                     .orderBy('createdAt', 'desc')
+                                     .get();
+        
+        const userNovels = [];
+        novelsSnapshot.forEach(doc => {
+            userNovels.push({ id: doc.id, ...doc.data() });
+        });
+
+        res.render('profile', { 
+            title: 'プロフィール',
+            novels: userNovels // 取得した小説リストをビューに渡す
+        });
+
+    } catch (error) {
+        console.error('プロフィールページの読み込みエラー:', error);
+        res.status(500).send('エラーが発生しました。');
+    }
+};
+
+// プロフィール編集ページを表示
+exports.showEditPage = async (req, res) => {
+    try {
+        const userDoc = await db.collection('users').doc(req.session.user.uid).get();
+        if (!userDoc.exists) {
+            return res.status(404).send('ユーザーデータが見つかりません');
+        }
+        res.render('profile-edit', {
+            title: 'プロフィール編集',
+            currentUser: userDoc.data() // Firestoreから最新のデータを渡す
+        });
+    } catch (error) {
+        console.error('プロフィール編集ページの表示エラー:', error);
+        res.status(500).send('エラーが発生しました');
+    }
+};
+
+// プロフィール情報を更新
+exports.updateProfile = async (req, res) => {
+    try {
+        const { uid } = req.session.user;
+        const { username, bio } = req.body;
+
+        // 1. Firestoreのユーザー情報を更新
+        await db.collection('users').doc(uid).update({
+            username: username,
+            bio: bio || '' // bioが空の場合も考慮
+        });
+
+        // 2. Firebase Authenticationの表示名を更新
+        await admin.auth().updateUser(uid, {
+            displayName: username
+        });
+
+        // 3. セッション情報を更新
+        req.session.user.username = username;
+
+        // セッションを保存してからリダイレクト
+        req.session.save(err => {
+            if (err) {
+                console.error('セッション保存エラー:', err);
+                return res.status(500).send('エラーが発生しました');
+            }
+            res.redirect('/profile');
+        });
+
+    } catch (error)
+    {
+        console.error('プロフィール更新エラー:', error);
+        res.status(500).send('更新中にエラーが発生しました');
+    }
+};

@@ -1,0 +1,23 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <div class="auth-form-wrapper">
+        <h2>プロフィール編集</h2>
+        <form action="/profile/edit" method="POST">
+            <div class="input-group">
+                <label for="username">ユーザー名</label>
+                <input type="text" id="username" name="username" value="<%= currentUser.username %>" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="bio">自己紹介</label>
+                <textarea id="bio" name="bio" class="bio-textarea" rows="5" placeholder="あなたのことを教えてください"><%= currentUser.bio || '' %></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">保存する</button>
+            <a href="/profile" class="btn btn-secondary" style="text-align: center;">キャンセル</a>
+        </form>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

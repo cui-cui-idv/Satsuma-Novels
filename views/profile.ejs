@@ -1,0 +1,38 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <div class="card" style="display: flex; align-items: center; gap: 2rem;">
+        <img src="<%= getGravatarUrl(user.email) %>" alt="プロフィールアイコン" style="border-radius: 50%; width: 150px; height: 150px;">
+        
+        <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="margin: 0; border: none;"><%= user.username %></h2>
+                <a href="/profile/edit" class="btn btn-secondary">プロフィールを編集</a>
+            </div>
+            <% if (locals.novels[0] && locals.novels[0].bio) { %>
+                <p style="color: var(--font-secondary);"><%= locals.novels[0].bio %></p>
+            <% } else { %>
+                <p style="color: var(--font-secondary);">自己紹介が設定されていません。</p>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 class="card-title">投稿した小説</h3>
+        <% if (novels && novels.length > 0) { %>
+            <div class="grid-container">
+                <% novels.forEach(novel => { %>
+                    <div class="card">
+                        <h4 class="card-title" style="font-size: 1.25rem;"><%= novel.title %></h4>
+                        <p style="color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 100) + '...' : 'あらすじはありません' %></p>
+                        <small>ステータス: <%= novel.status === 'published' ? '公開' : '下書き' %></small>
+                        </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p>まだ投稿した小説はありません。</p>
+        <% } %>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
