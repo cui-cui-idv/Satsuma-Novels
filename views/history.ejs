@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <h2>閲覧履歴</h2>
+
+    <% if (novels && novels.length > 0) { %>
+        <div class="grid-container" style="margin-top: 2rem;">
+            <% novels.forEach(novel => { %>
+                <a href="/novels/<%= novel.id %>" class="card-link">
+                    <div class="card">
+                        <h4 class="card-title"><%= novel.title %></h4>
+                        <p style="flex-grow: 1; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
+                        <small style="color: var(--font-secondary); text-align: right;">作者: <%= novel.authorName %></small>
+                    </div>
+                </a>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="card" style="margin-top: 2rem; text-align: center;">
+            <p>閲覧履歴はありません。</p>
+        </div>
+    <% } %>
+</main>
+
+<%- include('partials/footer') %>

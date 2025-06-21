@@ -41,9 +41,20 @@ body {
     background: var(--accent-secondary);
 }
 
-/* --- ヘッダー --- */
+/* --- リンクの基本スタイル --- */
+a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+a:hover {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+/* --- ヘッダー & ナビゲーション --- */
 .site-header {
-    padding: 1.5rem 2rem;
+    padding: 1rem 2rem;
     position: fixed;
     width: 100%;
     top: 0;
@@ -53,19 +64,20 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 .site-header nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex;             /* 中の要素（ロゴ、メニュー）を横に並べる */
+    justify-content: space-between; /* 両端に配置する */
+    align-items: center;       /* 縦方向の中央に揃える */
     max-width: 1400px;
     margin: 0 auto;
 }
 .site-header .logo {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     text-decoration: none;
     background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    z-index: 1030;
 }
 .site-header .nav-links {
     display: flex;
@@ -76,17 +88,105 @@ body {
     color: var(--font-secondary);
     text-decoration: none;
     font-weight: 700;
-    transition: color 0.3s ease;
 }
-.site-header .nav-links a:hover {
-    color: var(--font-primary);
+.hamburger-menu {
+    display: none;
 }
 
 /* --- コンテンツコンテナ --- */
 .container {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 8rem 2rem 2rem; /* ヘッダーの高さ分を確保 */
+    padding: 8rem 2rem 2rem;
+}
+
+/* --- ボタン --- */
+.btn {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    border: 2px solid transparent;
+    border-radius: 50em;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+}
+.btn-secondary {
+    background-color: var(--bg-surface);      /* 背景色を明示的に指定 */
+    border: 2px solid var(--accent-primary);  /* 枠線の色をアクセントカラーに指定 */
+    color: var(--accent-primary);             /* 文字色もアクセントカラーに */
+    font-weight: 700;
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent-primary);  /* ホバー時に背景色をアクセントカラーに */
+    color: var(--bg-deep);                    /* ホバー時に文字色を背景色にしてコントラストを出す */
+    border-color: var(--accent-primary);
+    transform: scale(1.05);
+}
+
+/* --- カードコンポーネント --- */
+.card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.card-title {
+    font-size: 1.25rem;
+    color: var(--font-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
+}
+.card p {
+    flex-grow: 1;
+}
+.card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+.card-link:hover .card {
+    transform: translateY(-5px);
+    border-color: var(--accent-primary);
+    box-shadow: 0 8px 30px 0 var(--shadow-color);
+}
+
+/* --- タグ表示用スタイル --- */
+.btn-tag {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 50em;
+    color: var(--font-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+.btn-tag:hover {
+    color: var(--font-primary);
+    border-color: var(--accent-primary);
+    background: var(--accent-primary);
 }
 
 /* --- ログイン前ヒーローセクション --- */
@@ -98,10 +198,9 @@ body {
     align-items: center;
     text-align: center;
     padding: 2rem;
-    background: var(--bg-deep) url('data:image/svg+xml,...'); /* ダミーの背景パターン */
 }
 .hero-section h1 {
-    font-size: clamp(2.5rem, 8vw, 5rem); /* 可変フォントサイズ */
+    font-size: clamp(2.5rem, 8vw, 5rem);
     font-weight: 700;
     background: var(--accent-gradient);
     -webkit-background-clip: text;
@@ -171,113 +270,26 @@ body {
     outline: none;
     border-color: var(--accent-primary);
 }
-
-/* --- ボタン --- */
-.btn {
-    display: inline-block;
-    padding: 0.8rem 2rem;
-    border: 2px solid transparent;
-    border-radius: 50em;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-.btn-primary {
-    background: var(--accent-gradient);
-    color: white;
-}
-.btn-primary:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
-}
-.btn-secondary {
-    background: transparent;
-    border-image: var(--accent-gradient) 1;
-    color: var(--font-primary);
-}
-.btn-secondary:hover {
-    background: var(--accent-gradient);
-    color: white;
-    border-color: transparent;
-    transform: scale(1.05);
-}
 .auth-form-wrapper .btn {
     margin-top: 1rem;
     padding: 1rem;
 }
 
-/* --- カード --- */
-.card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; /* transitionを追加 */
-}
-
-/* カードリンクのスタイル */
-.card-link {
-    text-decoration: none; /* 下線を消す */
-    color: inherit;      /* 文字色を親要素から継承(これが重要！) */
-    display: block;      /* レイアウト崩れを防ぐ */
-}
-
-/* リンクにマウスが乗った時に、中のカードのスタイルを変更 */
-.card-link:hover .card {
-    transform: translateY(-5px);
-    border-color: var(--accent-primary);
-    box-shadow: 0 8px 30px 0 var(--shadow-color);
-}
-
-.card-title {
-    font-size: 1.25rem;
-    color: var(--font-primary); /* ダークテーマの基本文字色に合わせる */
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-    line-height: 1.4;         /* 行の高さを設定 */
-    white-space: normal;      /* テキストの折り返しを許可する (デフォルト) */
-    overflow: visible;        /* はみ出した内容の表示を許可する */
-    text-overflow: clip;      /* '...'での省略を無効化する */
-    word-break: break-all;    /* 長い英数字でも強制的に改行させる */
-    min-height: 2.8rem;       /* タイトルが2行分になってもレイアウトが崩れないように高さを確保 (1.25rem * 1.4 * 2) */
-}
-
-/* --- アニメーション --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 /* --- 小説エディタ画面 --- */
 .editor-container {
-    max-width: 1400px; /* 通常のコンテナより幅広に */
+    max-width: 1400px;
 }
-
 .editor-layout {
     display: flex;
     gap: 2rem;
     align-items: flex-start;
 }
-
-/* メイン執筆エリア */
 .editor-main {
-    flex: 3; /* サイドバーの3倍の幅を取る */
+    flex: 3;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
-
 .novel-title-input {
     background: none;
     border: none;
@@ -292,18 +304,17 @@ body {
     outline: none;
     border-bottom-color: var(--accent-primary);
 }
-
 .novel-content-textarea {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     color: var(--font-primary);
-    font-family: 'Noto Serif JP', serif; /* 明朝体フォントを適用 */
+    font-family: 'Noto Serif JP', serif;
     font-size: 1.1rem;
     line-height: 1.8;
     padding: 2rem;
     width: 100%;
-    min-height: 70vh; /* 高さを確保 */
+    min-height: 70vh;
     resize: vertical;
 }
 .novel-content-textarea:focus {
@@ -311,14 +322,11 @@ body {
     border-color: var(--accent-primary);
     box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
 }
-
-/* サイドバー */
 .editor-sidebar {
     flex: 1;
     position: sticky;
-    top: 120px; /* ヘッダーの高さ + 余白 */
+    top: 120px;
 }
-
 .sidebar-card {
     background: var(--bg-surface);
     border-radius: 16px;
@@ -328,12 +336,10 @@ body {
     flex-direction: column;
     gap: 1.5rem;
 }
-
 .sidebar-card label {
     font-weight: 700;
     color: var(--font-secondary);
 }
-
 .sidebar-card textarea,
 .sidebar-card select {
     width: 100%;
@@ -344,22 +350,18 @@ body {
     color: var(--font-primary);
     font-size: 0.9rem;
 }
-
 .sidebar-card textarea:focus,
 .sidebar-card select:focus {
     outline: none;
     border-color: var(--accent-primary);
 }
-
 .sidebar-card .btn {
     width: 100%;
 }
-
-/* --- プロフィール編集: 自己紹介入力欄 --- */
 .bio-textarea {
     width: 100%;
     min-height: 150px;
-    background: var(--bg-deep); /* 背景を少し濃くして差別化 */
+    background: var(--bg-deep);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1.5rem;
@@ -369,15 +371,12 @@ body {
     resize: vertical;
     transition: all 0.3s ease;
 }
-
 .bio-textarea:focus {
     outline: none;
     border-color: var(--accent-primary);
     background-color: var(--bg-surface);
     box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
 }
-
-/* スクロールバーのスタイル（すでにあれば不要） */
 .bio-textarea::-webkit-scrollbar {
     width: 8px;
 }
@@ -398,17 +397,13 @@ body {
     text-align: center;
     min-height: 100vh;
     padding: 2rem;
-    /* ヘッダーの高さを考慮して、少し下に配置 */
     padding-top: 100px;
-    box-sizing: border-box;
 }
-
 .error-content {
     animation: fadeIn 1s ease-out;
 }
-
 .error-code {
-    font-size: clamp(8rem, 30vw, 15rem); /* 画面幅に応じてサイズを調整 */
+    font-size: clamp(8rem, 30vw, 15rem);
     font-weight: 700;
     line-height: 1;
     margin: 0;
@@ -417,7 +412,6 @@ body {
     -webkit-text-fill-color: transparent;
     animation: pulse 4s infinite ease-in-out;
 }
-
 .error-message {
     font-size: 1.75rem;
     font-weight: 700;
@@ -425,7 +419,6 @@ body {
     margin-top: 0;
     margin-bottom: 0.5rem;
 }
-
 .error-sub-message {
     font-size: 1rem;
     color: var(--font-secondary);
@@ -433,7 +426,57 @@ body {
     margin: 0 auto;
 }
 
-/* 404数字の鼓動のようなアニメーション */
+/* --- カスタムセレクトボックス（ドロップダウン） --- */
+.custom-select {
+    display: inline-block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--font-primary);
+    background-color: var(--bg-deep);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    margin: 0;
+
+    /* ▼▼▼ デフォルトの矢印を消すための設定 ▼▼▼ */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* ▼▼▼ カスタム矢印を背景画像として設定 ▼▼▼ */
+    /* 白い下向きの三角形をSVGデータとして指定しています */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EAEAEA'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1.5em;
+
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-select:hover {
+    border-color: var(--font-secondary);
+}
+
+.custom-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+}
+
+/* --- アニメーション --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -449,45 +492,120 @@ body {
     }
 }
 
-/* --- タグ表示用スタイル --- */
-.btn-tag {
-    display: inline-block;
-    padding: 0.3rem 0.8rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 50em;
-    color: var(--font-secondary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-.btn-tag:hover {
-    color: var(--font-primary);
-    border-color: var(--accent-primary);
-    background: var(--accent-primary);
-}
+/* --- レスポンシブ対応 (画面幅768px以下) --- */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 6rem 1rem 1rem;
+    }
+    .site-header {
+        padding: 1rem 1.5rem;
+    }
 
-/* --- 【カードコンポーネント最終修正】 --- */
+    /* PC用のナビゲーションを非表示に */
+    .site-header .nav-links {
+        display: none;
+    }
 
-/* カード全体のレイアウトをFlexboxで制御 */
-.card-link .card {
-    display: flex;
-    flex-direction: column;   /* 中の要素を縦に並べる */
-    height: 100%;             /* 親のグリッドセルいっぱいに高さを広げる */
-}
+    /* ハンバーガーメニューを表示 */
+    .hamburger-menu {
+        display: block;
+        width: 2rem;
+        height: 2rem;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 1020;
+        position: relative;
+    }
+    .hamburger-menu span {
+        display: block;
+        width: 2rem;
+        height: 3px;
+        background: var(--font-primary);
+        border-radius: 10px;
+        transition: all 0.3s ease-in-out;
+        position: relative;
+        transform-origin: center;
+    }
+    .hamburger-menu span:nth-of-type(2) {
+        margin: 0.5rem 0;
+    }
+    .hamburger-menu.is-active span:nth-of-type(1) {
+        transform: translateY(11px) rotate(45deg);
+    }
+    .hamburger-menu.is-active span:nth-of-type(2) {
+        opacity: 0;
+    }
+    .hamburger-menu.is-active span:nth-of-type(3) {
+        transform: translateY(-11px) rotate(-45deg);
+    }
 
-/* カード内のタイトル部分のスタイル */
-.card-link .card .card-title {
-    white-space: normal;      /* テキストの折り返しを許可（最重要） */
-    word-break: break-word;   /* 長い単語でも適切に改行 */
-    text-overflow: initial;   /* '...'による省略を無効化 */
-    overflow: visible;        /* はみ出したテキストを表示 */
-    height: auto;             /* 高さを自動に */
-}
+    /* スマホ用メニュー本体のスタイル */
+    .nav-links.is-active {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: var(--bg-surface);
+        z-index: 1010;
+    }
 
-/* カード内の本文（あらすじなど）のスタイル */
-/* この設定で、本文エリアが残りのスペースを埋めるようになり、
-   タイトルが2行になってもレイアウトが安定します。 */
-.card-link .card p {
-    flex-grow: 1; /* 残りの余白をすべて埋めるように自動で伸びる */
+    /* スマホ用メニュー内の各項目のスタイル */
+    .nav-links.is-active a,
+    .nav-links.is-active form {
+        width: 80%;
+        text-align: center;
+    }
+    .nav-links.is-active a {
+        font-size: 1.5rem;
+        padding: 0.5rem 0;
+        font-weight: 700;
+        color: var(--font-primary);
+    }
+    .nav-links.is-active .btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.2rem;
+    }
+
+    /* ヒーローセクション */
+    .hero-section .subtitle {
+        max-width: 90%;
+    }
+
+    /* 2カラムレイアウトを1カラムに */
+    .editor-layout {
+        flex-direction: column;
+    }
+    .editor-sidebar {
+        position: static;
+        width: 100%;
+    }
+    .novel-title-input {
+        font-size: 1.8rem;
+    }
+
+    /* グリッドを1カラムに */
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    /* 認証フォーム */
+    .auth-container {
+        padding: 1rem;
+    }
+    .auth-form-wrapper {
+        padding: 2rem;
+    }
+
+    /* 見出しのフォントサイズ調整 */
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
 }

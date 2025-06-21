@@ -27,7 +27,7 @@
                         <td style="padding: 1rem;">
                             <form action="/admin/novels/update-status" method="POST" style="padding:0; border:none; background:none;">
                                 <input type="hidden" name="novelId" value="<%= novel.id %>">
-                                <select name="status" onchange="this.form.submit()">
+                                <select name="status" onchange="this.form.submit()" class="custom-select">
                                     <option value="published" <%= novel.status === 'published' ? 'selected' : '' %>>公開</option>
                                     <option value="unlisted" <%= novel.status === 'unlisted' ? 'selected' : '' %>>限定公開</option>
                                     <option value="draft" <%= novel.status === 'draft' ? 'selected' : '' %>>下書き</option>

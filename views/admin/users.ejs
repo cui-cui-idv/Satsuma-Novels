@@ -21,7 +21,7 @@
                         <td style="padding: 1rem;">
                             <form action="/admin/users/update-role" method="POST">
                                 <input type="hidden" name="uid" value="<%= u.uid %>">
-                                <select name="role" onchange="this.form.submit()">
+                                <select name="role" onchange="this.form.submit()" class="custom-select">
                                     <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>admin</option>
                                     <option value="sub-admin" <%= u.role === 'sub-admin' ? 'selected' : '' %>>sub-admin</option>
                                     <option value="moderator" <%= u.role === 'moderator' ? 'selected' : '' %>>moderator</option>

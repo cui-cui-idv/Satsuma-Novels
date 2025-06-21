@@ -16,21 +16,48 @@
     <header class="site-header">
         <nav>
             <a href="/" class="logo">薩摩ノベルズ</a>
-<div class="nav-links">
-    <a href="/">ホーム</a>
-    <% if (user) { %>
-        <a href="/profile">プロフィール (<%= user.username %>)</a>
-        <% if (user.role === 'admin') { %>
-            <a href="/admin/users">ユーザー管理</a>
-            <a href="/admin/novels">小説管理</a>
-        <% } %>
-        <form action="/logout" method="POST" style="margin: 0;">
-            <button type="submit" class="btn btn-secondary">ログアウト</button>
-        </form>
-        <% } else { %>
-        <% } %>
-</div>
+
+            <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開く">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="nav-links" id="nav-links">
+                <a href="/">ホーム</a>
+                <% if (user) { %>
+                    <a href="/profile">プロフィール</a>
+
+                    <% if (user.role === 'admin') { %>
+                        <a href="/admin/users">ユーザー管理</a>
+                        <a href="/admin/novels">小説管理</a>
+                    <% } %>
+
+                    <a href="/likes">いいねした小説</a>
+                    <a href="/history">閲覧履歴</a>
+
+                    <form action="/logout" method="POST" style="margin: 0;">
+                        <button type="submit" class="btn btn-secondary">ログアウト</button>
+                    </form>
+
+                <% } else { %>
+                    <a href="/login">ログイン</a>
+                    <a href="/register">新規登録</a>
+                <% } %>
+            </div>
         </nav>
     </header>
 
-    <main class="container">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.getElementById('hamburger-menu');
+            const navLinks = document.getElementById('nav-links');
+
+            if (hamburger && navLinks) {
+                hamburger.addEventListener('click', () => {
+                    navLinks.classList.toggle('is-active');
+                    hamburger.classList.toggle('is-active');
+                });
+            }
+        });
+    </script>
