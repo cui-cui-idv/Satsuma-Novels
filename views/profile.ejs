@@ -2,10 +2,10 @@
 
 <main class="container">
     <div class="card">
-        <div style="display: flex; align-items: flex-start; gap: 2rem;">
-            <img src="<%= getGravatarUrl(user.email) %>" alt="プロフィールアイコン" style="border-radius: 50%; width: 150px; height: 150px; flex-shrink: 0;">
+        <div style="display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap;">
+            <img src="<%= getGravatarUrl(user.email) %>" alt="プロフィールアイコン" style="border-radius: 50%; width: 120px; height: 120px; flex-shrink: 0; margin: 0 auto;">
             
-            <div style="flex: 1;">
+            <div style="flex: 1; min-width: 250px;">
                 <div class="profile-header">
                     <h2 class="profile-username"><%= user.username %></h2>
                     <div class="profile-actions">
@@ -34,9 +34,7 @@
                             <p style="flex-grow: 1; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
                             <small style="color: var(--font-secondary); text-align: right;">
                                 ステータス: 
-                                <% if(novel.status === 'published') { %>公開<% } %>
-                                <% else if(novel.status === 'unlisted') { %>限定公開<% } %>
-                                <% else { %>下書き<% } %>
+                                <% if(novel.status === 'published') { %>公開<% } else if(novel.status === 'unlisted') { %>限定公開<% } else { %>下書き<% } %>
                             </small>
                         </div>
                     </a>
