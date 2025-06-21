@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+
+<main class="container" style="max-width: 900px;">
+    <div class="card">
+        <h1 style="border: none; margin-bottom: 0.5rem;"><%= novel.title %></h1>
+        <p style="color: var(--font-secondary);">作者: <%= novel.authorName %></p>
+        <p style="margin-top: 1rem;"><%= novel.description %></p>
+        </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <h2 class="card-title">目次</h2>
+            <% if (user && user.uid === novel.authorId) { %>
+                <a href="/novels/<%= novel.id %>/episodes/new" class="btn btn-primary">新しい話を追加</a>
+            <% } %>
+        </div>
+        <ul style="list-style: none; padding: 0;">
+            <% if (episodes.length > 0) { %>
+                <% episodes.forEach(episode => { %>
+                    <li style="border-bottom: 1px solid var(--border-color);">
+                        <a href="/novels/<%= novel.id %>/episodes/<%= episode.id %>" style="display: block; padding: 1rem; text-decoration: none; color: var(--font-primary);">
+                            <%= episode.title %>
+                        </a>
+                    </li>
+                <% }) %>
+            <% } else { %>
+                <li style="padding: 1rem;">まだ公開されている話はありません。</li>
+            <% } %>
+        </ul>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

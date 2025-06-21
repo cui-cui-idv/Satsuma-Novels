@@ -1,0 +1,35 @@
+<%- include('partials/header') %>
+
+<main class="container editor-container">
+    <form action="/novels/<%= novel.id %>/episodes" method="POST">
+        
+        <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+            <p style="color: var(--font-secondary);">シリーズ: <%= novel.title %></p>
+            <h2>新しい話を追加</h2>
+        </div>
+
+        <div class="editor-layout">
+            <div class="editor-main">
+                <input type="text" id="title" name="title" class="novel-title-input" placeholder="この話のタイトル" required>
+                <textarea id="content" name="content" class="novel-content-textarea" placeholder="ここに本文を綴る..." required></textarea>
+            </div>
+
+            <aside class="editor-sidebar">
+                <div class="sidebar-card">
+                    <div>
+                        <label for="status">公開ステータス</label>
+                        <select id="status" name="status">
+                            <option value="published" selected>公開</option>
+                            <option value="draft">下書き</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">この話を追加する</button>
+                    <a href="/novels/<%= novel.id %>" class="btn btn-secondary" style="text-align: center;">キャンセル</a>
+                </div>
+            </aside>
+        </div>
+    </form>
+</main>
+
+<%- include('partials/footer') %>

@@ -214,18 +214,35 @@ body {
     border-radius: 16px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; /* transitionを追加 */
 }
-.card:hover {
+
+/* カードリンクのスタイル */
+.card-link {
+    text-decoration: none; /* 下線を消す */
+    color: inherit;      /* 文字色を親要素から継承(これが重要！) */
+    display: block;      /* レイアウト崩れを防ぐ */
+}
+
+/* リンクにマウスが乗った時に、中のカードのスタイルを変更 */
+.card-link:hover .card {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px 0 var(--shadow-color);
+    border-color: var(--accent-primary);
+    box-shadow: 0 8px 30px 0 var(--shadow-color);
 }
+
 .card-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    color: var(--font-primary); /* ダークテーマの基本文字色に合わせる */
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
-    color: var(--accent-primary);
+    line-height: 1.4;         /* 行の高さを設定 */
+    white-space: normal;      /* テキストの折り返しを許可する (デフォルト) */
+    overflow: visible;        /* はみ出した内容の表示を許可する */
+    text-overflow: clip;      /* '...'での省略を無効化する */
+    word-break: break-all;    /* 長い英数字でも強制的に改行させる */
+    min-height: 2.8rem;       /* タイトルが2行分になってもレイアウトが崩れないように高さを確保 (1.25rem * 1.4 * 2) */
 }
 
 /* --- アニメーション --- */
@@ -371,4 +388,106 @@ body {
 .bio-textarea::-webkit-scrollbar-thumb {
     background: var(--accent-primary);
     border-radius: 4px;
+}
+
+/* --- 404エラーページ --- */
+.error-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+    padding: 2rem;
+    /* ヘッダーの高さを考慮して、少し下に配置 */
+    padding-top: 100px;
+    box-sizing: border-box;
+}
+
+.error-content {
+    animation: fadeIn 1s ease-out;
+}
+
+.error-code {
+    font-size: clamp(8rem, 30vw, 15rem); /* 画面幅に応じてサイズを調整 */
+    font-weight: 700;
+    line-height: 1;
+    margin: 0;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: pulse 4s infinite ease-in-out;
+}
+
+.error-message {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--font-primary);
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.error-sub-message {
+    font-size: 1rem;
+    color: var(--font-secondary);
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+/* 404数字の鼓動のようなアニメーション */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(0, 191, 255, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        text-shadow: 0 0 25px rgba(0, 191, 255, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(0, 191, 255, 0.3);
+    }
+}
+
+/* --- タグ表示用スタイル --- */
+.btn-tag {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 50em;
+    color: var(--font-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+.btn-tag:hover {
+    color: var(--font-primary);
+    border-color: var(--accent-primary);
+    background: var(--accent-primary);
+}
+
+/* --- 【カードコンポーネント最終修正】 --- */
+
+/* カード全体のレイアウトをFlexboxで制御 */
+.card-link .card {
+    display: flex;
+    flex-direction: column;   /* 中の要素を縦に並べる */
+    height: 100%;             /* 親のグリッドセルいっぱいに高さを広げる */
+}
+
+/* カード内のタイトル部分のスタイル */
+.card-link .card .card-title {
+    white-space: normal;      /* テキストの折り返しを許可（最重要） */
+    word-break: break-word;   /* 長い単語でも適切に改行 */
+    text-overflow: initial;   /* '...'による省略を無効化 */
+    overflow: visible;        /* はみ出したテキストを表示 */
+    height: auto;             /* 高さを自動に */
+}
+
+/* カード内の本文（あらすじなど）のスタイル */
+/* この設定で、本文エリアが残りのスペースを埋めるようになり、
+   タイトルが2行になってもレイアウトが安定します。 */
+.card-link .card p {
+    flex-grow: 1; /* 残りの余白をすべて埋めるように自動で伸びる */
 }

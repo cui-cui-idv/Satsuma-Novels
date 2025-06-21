@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
@@ -24,11 +24,12 @@ app.use(express.static('public')); // publicディレクトリを静的ファイ
 app.use(cookieParser());
 
 // セッション管理
-app.use(session({
-    secret: 'satsuma-novels-secret-key', // 推測されにくい秘密鍵に変更してください
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 60 * 60 * 1000 } // 1時間
+app.use(cookieSession({
+    name: 'satsuma-session', // Cookieの名前
+    keys: ['satsuma-novels-secret-key', 'another-secret-key'], // 署名に使う秘密鍵（複数設定可能）
+    
+    // Cookieのオプション
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
 }));
 
 // ビューエンジンの設定
@@ -66,12 +67,23 @@ const authRoutes = require('./routes/authRoutes');
 const novelRoutes = require('./routes/novelRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const tagRoutes = require('./routes/tagRoutes');
+const likeRoutes = require('./routes/likeRoutes.js');
 
 app.use('/', indexRoutes);
 app.use('/', authRoutes);
 app.use('/', novelRoutes);
 app.use('/', adminRoutes);
 app.use('/', profileRoutes);
+app.use('/', tagRoutes);
+app.use('/', likeRoutes);
+
+// --- ▼▼▼ 404 Not Found ハンドラ ▼▼▼ ---
+app.use((req, res, next) => {
+    res.status(404).render('404', { 
+        title: 'ページが見つかりません'
+    });
+});
 
 // --- サーバーの起動 ---
 app.listen(PORT, () => {

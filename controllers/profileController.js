@@ -62,14 +62,8 @@ exports.updateProfile = async (req, res) => {
         // 3. セッション情報を更新
         req.session.user.username = username;
 
-        // セッションを保存してからリダイレクト
-        req.session.save(err => {
-            if (err) {
-                console.error('セッション保存エラー:', err);
-                return res.status(500).send('エラーが発生しました');
-            }
-            res.redirect('/profile');
-        });
+        // すぐにリダイレクトする
+        res.redirect('/profile');
 
     } catch (error)
     {

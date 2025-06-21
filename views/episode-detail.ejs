@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+<main class="container" style="max-width: 800px;">
+    <article>
+        <h1 style="font-size: 2.5rem; text-align: center; margin-bottom: 3rem;"><%= episode.title %></h1>
+        <div class="novel-content" style="font-family: 'Noto Serif JP', serif; font-size: 1.1rem; line-height: 2; background: var(--bg-surface); padding: 3rem; border-radius: 8px;">
+            <%- episode.content.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>') %>
+        </div>
+    </article>
+
+    <div style="display: flex; justify-content: space-between; margin-top: 3rem;">
+        <% if (prevEpisodeId) { %>
+            <a href="/novels/<%= novelId %>/episodes/<%= prevEpisodeId %>" class="btn btn-secondary">前の話へ</a>
+        <% } else { %>
+            <span></span> <% } %>
+
+        <a href="/novels/<%= novelId %>" class="btn btn-secondary">目次へ</a>
+
+        <% if (nextEpisodeId) { %>
+            <a href="/novels/<%= novelId %>/episodes/<%= nextEpisodeId %>" class="btn btn-primary">次の話へ</a>
+        <% } else { %>
+            <span></span> <% } %>
+    </div>
+</main>
+<%- include('partials/footer') %>

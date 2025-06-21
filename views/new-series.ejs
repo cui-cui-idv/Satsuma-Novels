@@ -1,0 +1,30 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <div class="auth-form-wrapper" style="max-width: 800px;">
+        <h2>新しいシリーズを開始</h2>
+        <p style="color: var(--font-secondary); text-align: center; margin-bottom: 2rem;">
+            ここで登録するのは、物語全体のタイトルやあらすじです。各話の本文は、この後に作成します。
+        </p>
+        <form action="/novels" method="POST">
+            <div class="input-group">
+                <label for="title">シリーズタイトル</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="description">あらすじ・紹介文</label>
+                <textarea id="description" name="description" class="bio-textarea" rows="5"></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label for="tags">タグ</label>
+                <input type="text" id="tags" name="tags" placeholder="カンマ区切り (例: ファンタジー, 恋愛)">
+            </div>
+
+            <button type="submit" class="btn btn-primary">シリーズを作成して最初の話へ進む</button>
+        </form>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

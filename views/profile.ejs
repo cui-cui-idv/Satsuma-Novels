@@ -20,15 +20,21 @@
     <div class="card">
         <h3 class="card-title">投稿した小説</h3>
         <% if (novels && novels.length > 0) { %>
-            <div class="grid-container">
-                <% novels.forEach(novel => { %>
-                    <div class="card">
-                        <h4 class="card-title" style="font-size: 1.25rem;"><%= novel.title %></h4>
-                        <p style="color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 100) + '...' : 'あらすじはありません' %></p>
-                        <small>ステータス: <%= novel.status === 'published' ? '公開' : '下書き' %></small>
-                        </div>
-                <% }) %>
+<div class="grid-container">
+    <% novels.forEach(novel => { %>
+        <a href="/novels/<%= novel.id %>" style="text-decoration: none;">
+            <div class="card">
+                <h4 class="card-title" style="font-size: 1.25rem;"><%= novel.title %></h4>
+                <p style="color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 100) + '...' : 'あらすじはありません' %></p>
+                <small>ステータス: 
+                    <% if(novel.status === 'published') { %>公開<% } %>
+                    <% if(novel.status === 'unlisted') { %>限定公開<% } %>
+                    <% if(novel.status === 'draft') { %>下書き<% } %>
+                </small>
             </div>
+        </a>
+        <% }) %>
+</div>
         <% } else { %>
             <p>まだ投稿した小説はありません。</p>
         <% } %>

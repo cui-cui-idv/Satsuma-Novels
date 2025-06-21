@@ -15,4 +15,13 @@ router.post('/admin/users/update-role', adminController.updateUserRole);
 // ユーザーを削除
 router.post('/admin/users/delete', adminController.deleteUser);
 
+// 小説管理ページを表示
+router.get('/admin/novels', adminController.showNovelsPage);
+
+// 小説のステータスを更新
+router.post('/admin/novels/update-status', adminController.updateNovelStatus);
+
+// 小説を削除
+router.post('/admin/novels/delete', adminController.deleteNovel);
+
 module.exports = router;

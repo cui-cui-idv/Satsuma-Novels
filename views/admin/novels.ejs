@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>小説管理</h2>
+        <a href="/admin/users" class="btn btn-secondary">ユーザー管理へ</a>
+    </div>
+
+    <div class="card" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align: left; border-bottom: 2px solid var(--border-color);">
+                    <th style="padding: 1rem;">タイトル</th>
+                    <th style="padding: 1rem;">作者</th>
+                    <th style="padding: 1rem;">ステータス</th>
+                    <th style="padding: 1rem;">作成日時</th>
+                    <th style="padding: 1rem;">アクション</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% novels.forEach(novel => { %>
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 1rem;">
+                            <a href="/novels/<%= novel.id %>" target="_blank" title="詳細を確認"><%= novel.title %></a>
+                        </td>
+                        <td style="padding: 1rem;"><%= novel.authorName %></td>
+                        <td style="padding: 1rem;">
+                            <form action="/admin/novels/update-status" method="POST" style="padding:0; border:none; background:none;">
+                                <input type="hidden" name="novelId" value="<%= novel.id %>">
+                                <select name="status" onchange="this.form.submit()">
+                                    <option value="published" <%= novel.status === 'published' ? 'selected' : '' %>>公開</option>
+                                    <option value="unlisted" <%= novel.status === 'unlisted' ? 'selected' : '' %>>限定公開</option>
+                                    <option value="draft" <%= novel.status === 'draft' ? 'selected' : '' %>>下書き</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td style="padding: 1rem;"><%= new Date(novel.createdAt.toDate()).toLocaleString('ja-JP') %></td>
+                        <td style="padding: 1rem;">
+                            <form action="/admin/novels/delete" method="POST" onsubmit="return confirm('本当にこの小説を削除しますか？\nこの操作は元に戻せません。')" style="padding:0; border:none; background:none;">
+                                <input type="hidden" name="novelId" value="<%= novel.id %>">
+                                <button type="submit" class="btn-secondary" style="background: var(--accent-color); padding: 0.5rem 1rem;">削除</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

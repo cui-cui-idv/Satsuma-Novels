@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+
+<main class="container editor-container">
+    <form action="/novels/<%= novel.id %>/edit" method="POST">
+        <div class="editor-layout">
+            <div class="editor-main">
+                <input type="text" id="title" name="title" class="novel-title-input" placeholder="小説のタイトル" value="<%= novel.title %>" required>
+                <textarea id="content" name="content" class="novel-content-textarea" placeholder="ここに物語を綴る..." required><%= novel.content %></textarea>
+            </div>
+
+            <aside class="editor-sidebar">
+                <div class="sidebar-card">
+                    <div>
+                        <label for="description">あらすじ（任意）</label>
+                        <textarea id="description" name="description" rows="5"><%= novel.description %></textarea>
+                    </div>
+                    <div>
+                        <label for="tags">タグ</label>
+                        <input type="text" id="tags" name="tags" value="<%= novel.tags ? novel.tags.join(', ') : '' %>" placeholder="カンマ区切りで入力 (例: ファンタジー, 恋愛)">
+                        <small style="color: var(--font-secondary); font-size: 0.8rem;">カンマ(,)やスペースで区切って複数設定できます。</small>
+                    </div>
+                    <div>
+                        <label for="status">公開ステータス</label>
+                        <select id="status" name="status">
+                            <option value="published" <%= novel.status === 'published' ? 'selected' : '' %>>公開</option>
+                            <option value="unlisted" <%= novel.status === 'unlisted' ? 'selected' : '' %>>限定公開</option>
+                            <option value="draft" <%= novel.status === 'draft' ? 'selected' : '' %>>下書き</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">更新する</button>
+                    <a href="/novels/<%= novel.id %>" class="btn btn-secondary" style="text-align: center;">キャンセル</a>
+                </div>
+            </aside>
+        </div>
+    </form>
+</main>
+
+<%- include('partials/footer') %>

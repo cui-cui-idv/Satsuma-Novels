@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <h2>#<%= tagName %> の小説一覧</h2>
+
+    <% if (novels && novels.length > 0) { %>
+        <div class="grid-container" style="margin-top: 2rem;">
+            <% novels.forEach(novel => { %>
+                <a href="/novels/<%= novel.id %>" style="text-decoration: none;">
+                    <div class="card">
+                        <h4 class="card-title"><%= novel.title %></h4>
+                        <p style="color: var(--font-secondary);"><%= novel.authorName %></p>
+                        <p style="font-size: 0.9rem; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 100) + '...' : 'あらすじはありません' %></p>
+                    </div>
+                </a>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="card" style="margin-top: 2rem; text-align: center;">
+            <p>このタグが付いた公開作品はまだありません。</p>
+        </div>
+    <% } %>
+</main>
+
+<%- include('partials/footer') %>

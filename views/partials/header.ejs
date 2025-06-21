@@ -22,6 +22,7 @@
         <a href="/profile">プロフィール (<%= user.username %>)</a>
         <% if (user.role === 'admin') { %>
             <a href="/admin/users">ユーザー管理</a>
+            <a href="/admin/novels">小説管理</a>
         <% } %>
         <form action="/logout" method="POST" style="margin: 0;">
             <button type="submit" class="btn btn-secondary">ログアウト</button>

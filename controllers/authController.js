@@ -82,14 +82,8 @@ exports.loginUser = async (req, res) => {
             role: userData.role
         };
         
-        // セッション保存後にレスポンスを返す
-        req.session.save(err => {
-            if (err) {
-                console.error('セッション保存エラー:', err);
-                return res.status(500).send('セッションの保存に失敗しました');
-            }
-            res.status(200).send({ message: 'ログイン成功' });
-        });
+        // すぐにレスポンスを返す
+        res.status(200).send({ message: 'ログイン成功' });
 
     } catch (error) {
         console.error('ログインエラー:', error);

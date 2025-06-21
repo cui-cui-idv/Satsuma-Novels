@@ -62,3 +62,46 @@ exports.deleteUser = async (req, res) => {
         res.status(500).send('エラーが発生しました。');
     }
 };
+
+// 小説管理ページを表示
+exports.showNovelsPage = async (req, res) => {
+    try {
+        const novelsSnapshot = await db.collection('novels').orderBy('createdAt', 'desc').get();
+        const novels = [];
+        novelsSnapshot.forEach(doc => {
+            novels.push({ id: doc.id, ...doc.data() });
+        });
+
+        res.render('admin/novels', {
+            title: '小説管理',
+            novels: novels
+        });
+    } catch (error) {
+        console.error('小説リストの取得エラー:', error);
+        res.status(500).send('エラーが発生しました。');
+    }
+};
+
+// 小説のステータスを更新
+exports.updateNovelStatus = async (req, res) => {
+    const { novelId, status } = req.body;
+    try {
+        await db.collection('novels').doc(novelId).update({ status: status });
+        res.redirect('/admin/novels');
+    } catch (error) {
+        console.error('小説ステータスの更新エラー:', error);
+        res.status(500).send('エラーが発生しました。');
+    }
+};
+
+// 小説を削除
+exports.deleteNovel = async (req, res) => {
+    const { novelId } = req.body;
+    try {
+        await db.collection('novels').doc(novelId).delete();
+        res.redirect('/admin/novels');
+    } catch (error) {
+        console.error('小説の削除エラー:', error);
+        res.status(500).send('エラーが発生しました。');
+    }
+};
