@@ -1,0 +1,114 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <h2>アカウント設定</h2>
+
+    <div class="card">
+        <h3 class="card-title">メールアドレスの変更</h3>
+        <form id="update-email-form" class="auth-form-wrapper" style="margin: 0; max-width: none; background: none; border: none; padding: 0;">
+            <div class="input-group">
+                <label for="new-email">新しいメールアドレス</label>
+                <input type="email" id="new-email" required>
+            </div>
+            <div class="input-group">
+                <label for="current-password-for-email">現在のパスワード（確認用）</label>
+                <input type="password" id="current-password-for-email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">メールアドレスを更新</button>
+            <p id="email-message" class="message-area"></p>
+        </form>
+    </div>
+
+    <div class="card" style="margin-top: 2rem;">
+        <h3 class="card-title">パスワードの変更</h3>
+        <form id="update-password-form" class="auth-form-wrapper" style="margin: 0; max-width: none; background: none; border: none; padding: 0;">
+            <div class="input-group">
+                <label for="current-password">現在のパスワード</label>
+                <input type="password" id="current-password" required>
+            </div>
+            <div class="input-group">
+                <label for="new-password">新しいパスワード</label>
+                <input type="password" id="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">パスワードを更新</button>
+            <p id="password-message" class="message-area"></p>
+        </form>
+    </div>
+</main>
+
+<style>.message-area { margin-top: 1rem; text-align: center; }</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const auth = firebase.auth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) return;
+
+    const emailForm = document.getElementById('update-email-form');
+    const passwordForm = document.getElementById('update-password-form');
+    const emailMessage = document.getElementById('email-message');
+    const passwordMessage = document.getElementById('password-message');
+
+    // メールアドレス変更処理
+    emailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        emailMessage.textContent = '';
+        const newEmail = document.getElementById('new-email').value;
+        const password = document.getElementById('current-password-for-email').value;
+
+        try {
+            // 安全のため、現在のパスワードで再認証
+            const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
+            await currentUser.reauthenticateWithCredential(credential);
+            
+            // 再認証成功後、メールアドレスを更新
+            await currentUser.updateEmail(newEmail);
+            
+            // サーバーに通知して、Firestoreのデータも更新
+            await fetch('/account/update-email', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ newEmail: newEmail })
+            });
+
+            emailMessage.style.color = 'var(--accent-primary)';
+            emailMessage.textContent = 'メールアドレスが正常に更新されました。';
+            setTimeout(() => location.reload(), 2000);
+
+        } catch (error) {
+            console.error(error);
+            emailMessage.style.color = '#ff4d4d';
+            emailMessage.textContent = 'エラー: ' + error.message;
+        }
+    });
+
+    // パスワード変更処理
+    passwordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        passwordMessage.textContent = '';
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        
+        try {
+            // 現在のパスワードで再認証
+            const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPassword);
+            await currentUser.reauthenticateWithCredential(credential);
+
+            // パスワードを更新
+            await currentUser.updatePassword(newPassword);
+            
+            passwordMessage.style.color = 'var(--accent-primary)';
+            passwordMessage.textContent = 'パスワードが正常に更新されました。';
+            passwordForm.reset();
+
+        } catch (error) {
+            console.error(error);
+            passwordMessage.style.color = '#ff4d4d';
+            passwordMessage.textContent = 'エラー: ' + error.message;
+        }
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

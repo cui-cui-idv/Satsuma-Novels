@@ -95,6 +95,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const tagRoutes = require('./routes/tagRoutes');
 const likeRoutes = require('./routes/likeRoutes.js');
 const historyRoutes = require('./routes/historyRoutes.js');
+const accountRoutes = require('./routes/accountRoutes.js');
 
 app.use('/', indexRoutes);
 app.use('/', authRoutes);
@@ -104,6 +105,8 @@ app.use('/', profileRoutes);
 app.use('/', tagRoutes);
 app.use('/', likeRoutes);
 app.use('/', historyRoutes);
+app.use('/', accountRoutes);
+
 
 // --- ▼▼▼ 404 Not Found ハンドラ ▼▼▼ ---
 app.use((req, res, next) => {

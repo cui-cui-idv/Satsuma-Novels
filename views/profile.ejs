@@ -7,7 +7,9 @@
         <div style="flex: 1;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2 style="margin: 0; border: none;"><%= user.username %></h2>
-                <a href="/profile/edit" class="btn btn-secondary">プロフィールを編集</a>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="/account/settings" class="btn btn-secondary">アカウント設定</a> <a href="/profile/edit" class="btn btn-secondary">プロフィールを編集</a>
+                </div>
             </div>
             <% if (locals.novels[0] && locals.novels[0].bio) { %>
                 <p style="color: var(--font-secondary);"><%= locals.novels[0].bio %></p>

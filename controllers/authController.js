@@ -48,10 +48,21 @@ exports.registerUser = async (req, res) => {
 
         res.redirect('/login');
 
-    } catch (error) {
-        console.error('登録エラー:', error);
-        res.status(500).send('登録中にエラーが発生しました: ' + error.message);
+    // controllers/authController.js (registerUser 関数の catch ブロック)
+// ... tryブロックはそのまま ...
+} catch (error) {
+    console.error('登録エラー:', error);
+    let errorMessage = '登録中にエラーが発生しました。';
+    if (error.code === 'auth/email-already-exists') {
+        errorMessage = 'このメールアドレスは既に使用されています。';
+    } else if (error.code === 'auth/invalid-email') {
+        errorMessage = '有効なメールアドレスを入力してください。';
     }
+    res.render('register', {
+        title: '新規登録',
+        error: errorMessage // 修正したエラーメッセージを渡す
+    });
+}
 };
 
 // ログインページを表示
@@ -93,14 +104,10 @@ exports.loginUser = async (req, res) => {
 
 // ログアウト処理
 exports.logoutUser = (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            return res.status(500).send('ログアウトに失敗しました');
-        }
-        res.redirect('/');
-    });
+    // セッションをnullにすることで、Cookieがクリアされる
+    req.session = null;
+    res.redirect('/');
 };
-
 // パスワードリセット要求ページを表示
 exports.showForgotPasswordPage = (req, res) => {
     res.render('forgot-password', { title: 'パスワードをリセット' });
