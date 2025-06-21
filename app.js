@@ -7,8 +7,33 @@ const cookieParser = require('cookie-parser');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 
+const admin = require('firebase-admin');
+const fs = require('fs'); // ← ファイルシステムモジュールを読み込む
+
 // --- Firebase Admin SDKの初期化 ---
-const serviceAccount = require('./serviceAccountKey.json');
+const serviceAccountKeyPath = './serviceAccountKey.json';
+let serviceAccount;
+
+if (fs.existsSync(serviceAccountKeyPath)) {
+  // ファイルが存在する場合：serviceAccountKey.json を使う
+  console.log('serviceAccountKey.json を使用してFirebaseを初期化します。');
+  serviceAccount = require(serviceAccountKeyPath);
+} else if (process.env.FIREBASE_ADMIN_PROJECT_ID && process.env.FIREBASE_ADMIN_CLIENT_EMAIL && process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
+  // ファイルが存在しない場合：環境変数から認証情報を作成
+  console.log('環境変数を使用してFirebaseを初期化します。');
+  serviceAccount = {
+    projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+    // 環境変数内の改行コード(\n)を、実際の改行に変換する
+    privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n')
+  }
+} else {
+  // どちらも見つからない場合：エラーで停止
+  console.error('Firebase Admin SDK の認証情報が見つかりません。');
+  console.error('serviceAccountKey.json を配置するか、関連する環境変数を設定してください。');
+  process.exit(1); // アプリケーションを終了
+}
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
