@@ -18,8 +18,6 @@ router.post('/logout', authController.logoutUser);
 
 // パスワードリセット要求ページを表示
 router.get('/forgot-password', authController.showForgotPasswordPage);
-// パスワードリセットメールを送信
-router.post('/forgot-password', authController.handleForgotPassword);
 // パスワードリセット実行ページを表示
 router.get('/reset-password-action', authController.showResetPasswordPage);
 

@@ -113,26 +113,6 @@ exports.showForgotPasswordPage = (req, res) => {
     res.render('forgot-password', { title: 'パスワードをリセット' });
 };
 
-// パスワードリセットメールを送信
-exports.handleForgotPassword = async (req, res) => {
-    const { email } = req.body;
-    try {
-        // Firebase Authenticationの機能を使ってリセットメールを送信
-        await admin.auth().generatePasswordResetLink(email);
-        // 実際には上のリンク生成だけでメールが飛ぶ設定になっていることが多いですが、
-        // sendPasswordResetEmail を使うのがより確実です。
-        // ※ただし、テンプレートで設定したアクションURLが自動で使われます。
-        await admin.auth().sendPasswordResetEmail(email);
-        
-        // ユーザーにメールアドレスの存在を知らせないように、常に成功メッセージを表示するのがセキュリティ上好ましい
-        res.render('forgot-password-sent', { title: 'メールを送信しました' });
-
-    } catch (error) {
-        // エラーが発生しても、ユーザーには成功したように見せかける
-        console.error("Password reset error:", error);
-        res.render('forgot-password-sent', { title: 'メールを送信しました' });
-    }
-};
 
 // パスワードリセット実行ページを表示
 exports.showResetPasswordPage = (req, res) => {
