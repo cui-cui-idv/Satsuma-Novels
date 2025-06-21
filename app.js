@@ -6,8 +6,6 @@ const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
-
-const admin = require('firebase-admin');
 const fs = require('fs'); // ← ファイルシステムモジュールを読み込む
 
 // --- Firebase Admin SDKの初期化 ---
