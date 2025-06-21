@@ -4,6 +4,16 @@ const db = admin.firestore();
 exports.showProfilePage = async (req, res) => {
     try {
         const userId = req.session.user.uid;
+
+        // 1. ユーザー自身のプロフィール情報（自己紹介など）を取得
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            // 万が一ユーザーデータがなければエラー
+            return res.status(404).send('ユーザーデータが見つかりません');
+        }
+        const userProfile = userDoc.data();
+
+        // 2. ユーザーが投稿した小説のリストを取得
         const novelsSnapshot = await db.collection('novels')
                                      .where('authorId', '==', userId)
                                      .orderBy('createdAt', 'desc')
@@ -14,9 +24,11 @@ exports.showProfilePage = async (req, res) => {
             userNovels.push({ id: doc.id, ...doc.data() });
         });
 
+        // 3. プロフィール情報と小説リストの両方をビューに渡す
         res.render('profile', { 
             title: 'プロフィール',
-            novels: userNovels // 取得した小説リストをビューに渡す
+            profileData: userProfile, // ← ユーザーのプロフィール情報
+            novels: userNovels        // ← 投稿した小説リスト
         });
 
     } catch (error) {

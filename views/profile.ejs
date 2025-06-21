@@ -1,42 +1,47 @@
 <%- include('partials/header') %>
 
 <main class="container">
-    <div class="card" style="display: flex; align-items: center; gap: 2rem;">
-        <img src="<%= getGravatarUrl(user.email) %>" alt="プロフィールアイコン" style="border-radius: 50%; width: 150px; height: 150px;">
-        
-        <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2 style="margin: 0; border: none;"><%= user.username %></h2>
-                <div style="display: flex; gap: 1rem;">
-                    <a href="/account/settings" class="btn btn-secondary">アカウント設定</a> <a href="/profile/edit" class="btn btn-secondary">プロフィールを編集</a>
+    <div class="card">
+        <div style="display: flex; align-items: flex-start; gap: 2rem;">
+            <img src="<%= getGravatarUrl(user.email) %>" alt="プロフィールアイコン" style="border-radius: 50%; width: 150px; height: 150px; flex-shrink: 0;">
+            
+            <div style="flex: 1;">
+                <div class="profile-header">
+                    <h2 class="profile-username"><%= user.username %></h2>
+                    <div class="profile-actions">
+                        <a href="/account/settings" class="btn btn-secondary">アカウント設定</a>
+                        <a href="/profile/edit" class="btn btn-secondary">プロフィールを編集</a>
+                    </div>
                 </div>
+                
+                <% if (profileData && profileData.bio) { %>
+                    <p style="color: var(--font-secondary); margin-top: 1rem;"><%= profileData.bio %></p>
+                <% } else { %>
+                    <p style="color: var(--font-secondary); margin-top: 1rem;">自己紹介が設定されていません。</p>
+                <% } %>
             </div>
-            <% if (locals.novels[0] && locals.novels[0].bio) { %>
-                <p style="color: var(--font-secondary);"><%= locals.novels[0].bio %></p>
-            <% } else { %>
-                <p style="color: var(--font-secondary);">自己紹介が設定されていません。</p>
-            <% } %>
         </div>
     </div>
 
     <div class="card">
         <h3 class="card-title">投稿した小説</h3>
         <% if (novels && novels.length > 0) { %>
-<div class="grid-container">
-    <% novels.forEach(novel => { %>
-        <a href="/novels/<%= novel.id %>" style="text-decoration: none;">
-            <div class="card">
-                <h4 class="card-title" style="font-size: 1.25rem;"><%= novel.title %></h4>
-                <p style="color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 100) + '...' : 'あらすじはありません' %></p>
-                <small>ステータス: 
-                    <% if(novel.status === 'published') { %>公開<% } %>
-                    <% if(novel.status === 'unlisted') { %>限定公開<% } %>
-                    <% if(novel.status === 'draft') { %>下書き<% } %>
-                </small>
+            <div class="grid-container">
+                <% novels.forEach(novel => { %>
+                    <a href="/novels/<%= novel.id %>" class="card-link">
+                        <div class="card">
+                            <h4 class="card-title"><%= novel.title %></h4>
+                            <p style="flex-grow: 1; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
+                            <small style="color: var(--font-secondary); text-align: right;">
+                                ステータス: 
+                                <% if(novel.status === 'published') { %>公開<% } %>
+                                <% else if(novel.status === 'unlisted') { %>限定公開<% } %>
+                                <% else { %>下書き<% } %>
+                            </small>
+                        </div>
+                    </a>
+                <% }) %>
             </div>
-        </a>
-        <% }) %>
-</div>
         <% } else { %>
             <p>まだ投稿した小説はありません。</p>
         <% } %>
