@@ -116,3 +116,5 @@ app.use((req, res, next) => {
 app.listen(PORT, () => {
   console.log(`サーバーがポート${PORT}で起動しました: http://localhost:${PORT}`);
 });
+
+module.exports = app;
