@@ -6,6 +6,7 @@ const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
+const path = require('path');
 const fs = require('fs'); // ← ファイルシステムモジュールを読み込む
 
 // --- Firebase Admin SDKの初期化 ---
@@ -43,7 +44,7 @@ const PORT = process.env.PORT || 3000;
 // --- ミドルウェアの設定 ---
 app.use(express.json()); // JSON形式のリクエストボディをパース
 app.use(express.urlencoded({ extended: true })); // URLエンコードされたリクエストボディをパース
-app.use(express.static('public')); // publicディレクトリを静的ファイル配信用に設定
+app.use(express.static(path.join(__dirname, 'public'))); // publicディレクトリを静的ファイル配信用に設定
 app.use(cookieParser());
 
 // セッション管理
@@ -56,6 +57,7 @@ app.use(cookieSession({
 }));
 
 // ビューエンジンの設定
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // --- グローバル変数 ---
