@@ -183,7 +183,8 @@ a:hover {
 
 /* スマホ用オーバーレイメニュー */
 .mobile-nav-menu {
-    display: none; /* 通常は非表示 */
+    /* display: none; を削除し、常にflexにしておく */
+    display: flex; 
     position: fixed;
     top: 0;
     left: 0;
@@ -195,10 +196,16 @@ a:hover {
     justify-content: center;
     align-items: center;
     gap: 1.5rem;
+    opacity: 0; /* 最初は透明 */
+    visibility: hidden; /* 最初は非表示で見えない、クリックもできない */
+    transition: opacity 0.3s ease, visibility 0s 0.3s; /* opacityを0.3秒で変化させ、完了後にvisibilityを切り替え */
 }
 
 .mobile-nav-menu.is-active {
-    display: flex; /* is-activeクラスで表示 */
+    /* display: flex; は不要なので削除 */
+    opacity: 1; /* 表示するときは不透明に */
+    visibility: visible; /* 表示してクリックできるように */
+    transition: opacity 0.3s ease; /* 0.3秒かけて表示 */
 }
 
 .mobile-nav-menu a,

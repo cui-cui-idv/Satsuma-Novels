@@ -62,22 +62,25 @@
         // --- ハンバーガーメニューの制御 ---
         const hamburger = document.getElementById('hamburger-menu');
         const mobileNav = document.getElementById('mobile-nav-menu');
-        const siteHeader = document.querySelector('.site-header'); // ヘッダー要素を取得
+        const siteHeader = document.querySelector('.site-header');
 
-        if (hamburger && mobileNav) {
+        if (hamburger && mobileNav && siteHeader) {
+            const headerHeight = siteHeader.offsetHeight; // ヘッダーの高さを取得
+
             hamburger.addEventListener('click', () => {
-                // 'is-active'クラスをボタンとメニューに付け外しする
                 const isActive = hamburger.classList.toggle('is-active');
                 mobileNav.classList.toggle('is-active');
 
-                // メニューが開いているときは背景をスクロールさせない
-                // 同時に、ヘッダーがメニューの上にくるようにz-indexを調整
                 if (isActive) {
                     document.body.style.overflow = 'hidden';
-                    if (siteHeader) siteHeader.style.zIndex = '1030'; // ヘッダーを最前面に
+                    siteHeader.style.zIndex = '1030';
+                    // メニューのコンテンツがヘッダーと被らないように、ヘッダーの高さ分だけパディングを追加
+                    mobileNav.style.paddingTop = `${headerHeight}px`;
                 } else {
                     document.body.style.overflow = '';
-                    if (siteHeader) siteHeader.style.zIndex = ''; // z-indexを元に戻す
+                    siteHeader.style.zIndex = '';
+                    // パディングを元に戻す
+                    mobileNav.style.paddingTop = '';
                 }
             });
         }
@@ -122,6 +125,6 @@
         });
     });
     </script>
-
+<meta name="google-site-verification" content="gLRTHMCQR3dEtAt_ERNQbbRm9hm3L6vx0oIhIjnd78o" />
 </body>
 </html>
