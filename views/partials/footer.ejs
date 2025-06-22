@@ -8,7 +8,6 @@
 
     <!-- スマホ用オーバーレイメニュー -->
     <div class="mobile-nav-menu" id="mobile-nav-menu">
-        <a href="/">ホーム</a>
         <% if (user) { %>
             <a href="/profile">プロフィール</a>
             <% if (user.role === 'admin') { %>
@@ -60,17 +59,30 @@
     <!-- サイト共通スクリプト -->
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // ハンバーガーメニューの制御
+        // --- ハンバーガーメニューの制御 ---
         const hamburger = document.getElementById('hamburger-menu');
-        const mobileNav = document.getElementById('mobile-nav-menu'); // IDを修正
+        const mobileNav = document.getElementById('mobile-nav-menu');
+        const siteHeader = document.querySelector('.site-header'); // ヘッダー要素を取得
+
         if (hamburger && mobileNav) {
             hamburger.addEventListener('click', () => {
-                hamburger.classList.toggle('is-active');
-                mobileNav.classList.toggle('is-active'); // 対象クラスを修正
+                // 'is-active'クラスをボタンとメニューに付け外しする
+                const isActive = hamburger.classList.toggle('is-active');
+                mobileNav.classList.toggle('is-active');
+
+                // メニューが開いているときは背景をスクロールさせない
+                // 同時に、ヘッダーがメニューの上にくるようにz-indexを調整
+                if (isActive) {
+                    document.body.style.overflow = 'hidden';
+                    if (siteHeader) siteHeader.style.zIndex = '1030'; // ヘッダーを最前面に
+                } else {
+                    document.body.style.overflow = '';
+                    if (siteHeader) siteHeader.style.zIndex = ''; // z-indexを元に戻す
+                }
             });
         }
 
-        // 検索オーバーレイの制御
+        // --- 検索オーバーレイの制御 ---
         const searchToggleBtn = document.getElementById('search-toggle-btn');
         const searchOverlay = document.getElementById('search-overlay');
         const searchCloseBtn = document.getElementById('search-close-btn');
@@ -79,13 +91,19 @@
                 searchOverlay.classList.add('is-active');
                 const input = searchOverlay.querySelector('input');
                 if (input) input.focus();
+                // 検索オーバーレイ表示時も背景スクロールを止める
+                document.body.style.overflow = 'hidden';
             });
             searchCloseBtn.addEventListener('click', () => {
                 searchOverlay.classList.remove('is-active');
+                 // ハンバーガーメニューが開いていなければスクロールを戻す
+                if (!mobileNav.classList.contains('is-active')) {
+                    document.body.style.overflow = '';
+                }
             });
         }
 
-        // ユーザーメニュー ドロップダウンの制御
+        // --- ユーザーメニュー ドロップダウンの制御 ---
         const userMenu = document.getElementById('user-menu');
         const userMenuButton = document.getElementById('user-menu-button');
         if (userMenu && userMenuButton) {
