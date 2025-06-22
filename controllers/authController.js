@@ -90,7 +90,8 @@ exports.loginUser = async (req, res) => {
             uid: uid,
             email: userData.email,
             username: userData.username,
-            role: userData.role
+            role: userData.role,
+            email_verified: decodedToken.email_verified
         };
         
         // すぐにレスポンスを返す
@@ -119,4 +120,26 @@ exports.showResetPasswordPage = (req, res) => {
     // このページでは、実際の処理はクライアントサイドのJavaScriptで行う
     // oobCodeなどのクエリパラメータはJSで取得する
     res.render('reset-password-action', { title: '新しいパスワードを設定' });
+};
+
+exports.finalizeRegistration = async (req, res) => {
+    try {
+        const { uid, email, username } = req.body;
+
+        // Firestoreにユーザー情報を保存
+        await db.collection('users').doc(uid).set({
+            username: username,
+            email: email,
+            role: 'general',
+            bio: '',
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        res.status(201).json({ success: true, message: 'ユーザーデータの作成に成功しました。' });
+    } catch (error) {
+        console.error('Firestoreへのユーザー作成エラー:', error);
+        // このエラーは、すでにAuthにユーザーがいるのにDB作成に失敗した場合に起きる
+        // 必要に応じて、Authからユーザーを削除するなどのクリーンアップ処理をここに入れる
+        res.status(500).json({ success: false, message: 'データベースエラーが発生しました。' });
+    }
 };

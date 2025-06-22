@@ -38,5 +38,6 @@ router.post('/novels/:id/like', isAuthenticated, novelController.toggleLike);
 // 小説詳細（目次）ページを表示
 router.get('/novels/:id', novelController.showNovelPage);
 
+router.get('/novels/:novelId/episodes/new', isAuthenticated, exports.isVerified, novelController.showNewEpisodePage);
 
 module.exports = router;

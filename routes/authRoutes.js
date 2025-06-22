@@ -21,4 +21,9 @@ router.get('/forgot-password', authController.showForgotPasswordPage);
 // パスワードリセット実行ページを表示
 router.get('/reset-password-action', authController.showResetPasswordPage);
 
+router.post('/register-firestore', authController.finalizeRegistration);
+
+// メール認証のアクションページ
+router.get('/verify-email-action', authController.showVerifyEmailPage);
+
 module.exports = router;

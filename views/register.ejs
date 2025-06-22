@@ -1,14 +1,8 @@
 <%- include('partials/header') %>
 <div class="auth-container">
-    <div class="auth-form-wrapper">
+    <div class="auth-form-wrapper" id="register-wrapper">
         <h2>新規登録</h2>
-
-        <% if (typeof error !== 'undefined' && error) { %>
-            <p style="color: #ff4d4d; background-color: rgba(255, 77, 77, 0.1); padding: 1rem; border-radius: 8px; text-align: center;">
-                <%= error %>
-            </p>
-        <% } %>
-        <form action="/register" method="POST">
+        <form id="register-form">
             <div class="input-group">
                 <input type="text" id="username" name="username" required placeholder="ユーザー名">
             </div>
@@ -18,11 +12,68 @@
             <div class="input-group">
                 <input type="password" id="password" name="password" minlength="6" required placeholder="パスワード">
             </div>
-            <button type="submit" class="btn btn-primary">登録</button>
+            <button type="submit" class="btn btn-primary">登録して確認メールを送信</button>
         </form>
-        <p style="text-align: center; margin-top: 2rem; color: var(--font-secondary);">
+        <p id="message" style="text-align: center; margin-top: 1.5rem;"></p>
+        <p style="text-align: center; margin-top: 1rem; color: var(--font-secondary);">
             すでにアカウントをお持ちですか？ <a href="/login" style="color: var(--accent-primary);">ログイン</a>
         </p>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const registerForm = document.getElementById('register-form');
+    const messageEl = document.getElementById('message');
+    const wrapperEl = document.getElementById('register-wrapper');
+
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        messageEl.textContent = '処理中です...';
+        messageEl.style.color = 'var(--font-secondary)';
+
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            // 1. Firebase Authにユーザーを作成
+            const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+            // 2. 作成したユーザーのプロフィール情報（表示名）を更新
+            await user.updateProfile({ displayName: username });
+
+            // 3. 確認メールを送信
+            await user.sendEmailVerification();
+
+            // 4. サーバーに通知してFirestoreにユーザーデータを作成
+            await fetch('/register-firestore', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: user.uid, email: user.email, username: username })
+            });
+
+            // 登録成功メッセージを表示
+            wrapperEl.innerHTML = `
+                <div style="text-align: center;">
+                    <h2>登録ありがとうございます</h2>
+                    <p style="color: var(--font-secondary);">アカウントを有効にするため、<strong>${email}</strong> に送信された確認メール内のリンクをクリックしてください。</p>
+                    <a href="/login" class="btn btn-primary" style="margin-top: 2rem;">ログインページへ</a>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('登録エラー:', error);
+            messageEl.style.color = '#ff4d4d';
+            if (error.code === 'auth/email-already-in-use') {
+                messageEl.textContent = 'このメールアドレスは既に使用されています。';
+            } else {
+                messageEl.textContent = 'エラー: ' + error.message;
+            }
+        }
+    });
+});
+</script>
+
 <%- include('partials/footer') %>
