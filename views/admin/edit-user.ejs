@@ -1,0 +1,28 @@
+<%- include('../partials/header') %>
+
+<main class="container">
+    <h2>ユーザー編集</h2>
+    <p style="color: var(--font-secondary);">ユーザー: <%= userData.email %></p>
+
+    <div class="card" style="margin-top: 2rem;">
+        <form action="/admin/users/<%= userData.id %>/edit" method="POST" class="auth-form-wrapper" style="margin: 0; max-width: none; background: none; border: none; padding: 0;">
+            <div class="input-group">
+                <label for="username">ユーザー名（表示名）</label>
+                <input type="text" id="username" name="username" value="<%= userData.username %>" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="handle">ユーザーID（ハンドル名）</label>
+                <input type="text" id="handle" name="handle" value="<%= userData.handle %>" readonly>
+                <small style="color: var(--font-secondary); font-size: 0.8rem;">ハンドル名はサイトの安定性のため、管理者でも変更できません。</small>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary">更新する</button>
+                <a href="/admin/users" class="btn btn-secondary">キャンセル</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

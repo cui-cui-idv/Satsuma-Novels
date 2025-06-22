@@ -1,0 +1,51 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <% if (query) { %>
+        <h1>「<span style="color: var(--accent-primary);"><%= query %></span>」の検索結果</h1>
+    <% } else { %>
+        <h1>小説・ユーザーを検索</h1>
+        <p style="color: var(--font-secondary);">ヘッダーの検索バーから検索してください。</p>
+    <% } %>
+
+    <div style="margin-top: 3rem;">
+        <h2>小説</h2>
+        <% if (novels.length > 0) { %>
+            <div class="grid-container">
+                <% novels.forEach(novel => { %>
+                    <a href="/novels/<%= novel.id %>" class="card-link">
+                        <div class="card">
+                            <h4 class="card-title"><%= novel.title %></h4>
+                            <p style="flex-grow: 1; font-size: 0.9rem; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
+                            <small style="color: var(--font-secondary); text-align: right;">
+                                作者: <a href="/users//@<%= novel.authorHandle %>"><%= novel.authorName %></a>
+                            </small>
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+        <% } else if (query) { %>
+            <div class="card"><p>一致する小説は見つかりませんでした。</p></div>
+        <% } %>
+    </div>
+
+    <div style="margin-top: 3rem;">
+        <h2>ユーザー</h2>
+        <% if (users.length > 0) { %>
+            <div class="grid-container">
+                <% users.forEach(u => { %>
+                    <a href="/users/<%= u.id %>" class="card-link">
+                        <div class="card" style="text-align: center;">
+                            <img src="<%= getGravatarUrl(u.email) %>" alt="" style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem;">
+                            <h4 class="card-title" style="border: none;"><%= u.username %></h4>
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+        <% } else if (query) { %>
+            <div class="card"><p>一致するユーザーは見つかりませんでした。</p></div>
+        <% } %>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

@@ -24,4 +24,10 @@ router.post('/admin/novels/update-status', adminController.updateNovelStatus);
 // 小説を削除
 router.post('/admin/novels/delete', adminController.deleteNovel);
 
+// 管理者によるユーザー編集ページを表示
+router.get('/admin/users/:id/edit', adminController.showUserEditPage);
+
+// 管理者によるユーザー情報更新
+router.post('/admin/users/:id/edit', adminController.updateUserByAdmin);
+
 module.exports = router;

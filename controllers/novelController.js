@@ -9,7 +9,7 @@ const db = admin.firestore();
 exports.createNovel = async (req, res) => {
     try {
         const { title, description, tags } = req.body;
-        const { uid, username } = req.session.user;
+        const { uid, username, handle } = req.session.user; // ← セッションから handle も取得
 
         if (!title) {
             return res.status(400).send('シリーズタイトルは必須です。');
@@ -24,6 +24,7 @@ exports.createNovel = async (req, res) => {
             status: 'draft',
             authorId: uid,
             authorName: username,
+            authorHandle: handle, // ← ★authorHandle を保存
             likeCount: 0,
             episodeCount: 0,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -255,6 +256,7 @@ exports.showEpisodePage = async (req, res) => {
             title: `${novel.title} - ${episode.title}`,
             novel: { id: novelDoc.id, ...novel },
             episode: episode,
+            novelId: novelId,
             prevEpisodeId: prevEpisodeId,
             nextEpisodeId: nextEpisodeId
         });

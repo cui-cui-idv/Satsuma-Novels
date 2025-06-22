@@ -1,15 +1,109 @@
-<footer style="text-align: center; padding: 2rem; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--font-secondary);">
-    <p><a href="/privacy-policy">プライバシーポリシー</a></p>
-    <p style="margin-top: 1rem;">&copy; 2025 薩摩ノベルズ. All Rights Reserved.</p>
-</footer>
-</div>
-    <script src="https://www.google.com/recaptcha/api.js?render=<%= firebaseConfig.recaptchaSiteKey %>"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="/privacy-policy">プライバシーポリシー</a>
+            <!-- 他にもフッターリンクがあればここに追加 -->
+        </div>
+        <p class="copyright">&copy; <%= new Date().getFullYear() %> 薩摩ノベルズ. All Rights Reserved.</p>
+    </footer>
+
+    <!-- スマホ用オーバーレイメニュー -->
+    <div class="mobile-nav-menu" id="mobile-nav-menu">
+        <a href="/">ホーム</a>
+        <% if (user) { %>
+            <a href="/profile">プロフィール</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/admin/users">ユーザー管理</a>
+                <a href="/admin/novels">小説管理</a>
+            <% } %>
+            <a href="/likes">いいねした小説</a>
+            <a href="/history">閲覧履歴</a>
+            <a href="/account/settings">アカウント設定</a>
+            <form action="/logout" method="POST" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-secondary">ログアウト</button>
+            </form>
+        <% } else { %>
+            <a href="/login" style="margin-top: 1.5rem;">ログイン</a>
+            <a href="/register" class="btn btn-primary" style="margin-top: 1rem;">新規登録</a>
+        <% } %>
+    </div>
+
+    <!-- 検索オーバーレイ -->
+    <div class="search-overlay" id="search-overlay">
+        <button class="close-btn" id="search-close-btn" aria-label="検索フォームを閉じる">&times;</button>
+        <form action="/search" method="GET" class="search-overlay-form">
+            <input type="search" name="q" placeholder="小説や作者を検索..." class="search-overlay-input" autofocus>
+            <button type="submit" class="btn btn-primary">検索</button>
+        </form>
+    </div>
+
+    <!-- Firebase & reCAPTCHA Scripts -->
+    <% if (firebaseConfig && firebaseConfig.apiKey) { %>
+        <!-- reCAPTCHA スクリプト (必要な場合) -->
+        <% if (firebaseConfig.recaptchaSiteKey) { %>
+            <script src="https://www.google.com/recaptcha/api.js?render=<%= firebaseConfig.recaptchaSiteKey %>"></script>
+        <% } %>
+        
+        <!-- Firebase SDK -->
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+        
+        <!-- Firebase 初期化 -->
+        <script>
+            // firebaseConfigがEJSから渡されていることを確認
+            const firebaseConfig = <%- JSON.stringify(firebaseConfig) %>;
+            if (firebaseConfig && firebaseConfig.apiKey && typeof firebase !== 'undefined' && !firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+        </script>
+    <% } %>
+    
+    <!-- サイト共通スクリプト -->
     <script>
-        // .envから渡された設定でFirebaseを初期化
-        const firebaseConfig = <%- JSON.stringify(firebaseConfig) %>;
-        firebase.initializeApp(firebaseConfig);
+    document.addEventListener('DOMContentLoaded', () => {
+        // ハンバーガーメニューの制御
+        const hamburger = document.getElementById('hamburger-menu');
+        const mobileNav = document.getElementById('mobile-nav-menu'); // IDを修正
+        if (hamburger && mobileNav) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('is-active');
+                mobileNav.classList.toggle('is-active'); // 対象クラスを修正
+            });
+        }
+
+        // 検索オーバーレイの制御
+        const searchToggleBtn = document.getElementById('search-toggle-btn');
+        const searchOverlay = document.getElementById('search-overlay');
+        const searchCloseBtn = document.getElementById('search-close-btn');
+        if (searchToggleBtn && searchOverlay && searchCloseBtn) {
+            searchToggleBtn.addEventListener('click', () => {
+                searchOverlay.classList.add('is-active');
+                const input = searchOverlay.querySelector('input');
+                if (input) input.focus();
+            });
+            searchCloseBtn.addEventListener('click', () => {
+                searchOverlay.classList.remove('is-active');
+            });
+        }
+
+        // ユーザーメニュー ドロップダウンの制御
+        const userMenu = document.getElementById('user-menu');
+        const userMenuButton = document.getElementById('user-menu-button');
+        if (userMenu && userMenuButton) {
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // 親要素へのイベント伝播を停止
+                const isActive = userMenu.classList.toggle('is-active');
+                userMenuButton.setAttribute('aria-expanded', isActive);
+            });
+        }
+        // メニュー外をクリックしたときに閉じる
+        document.addEventListener('click', (e) => {
+            if (userMenu && !userMenu.contains(e.target)) {
+                userMenu.classList.remove('is-active');
+                if (userMenuButton) userMenuButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
     </script>
+
 </body>
 </html>

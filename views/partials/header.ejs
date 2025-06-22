@@ -3,61 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> | 薩摩ノベルズ</title>
-    
+    <title><%= title ? `${title} | ` : '' %>薩摩ノベルズ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
-    <header class="site-header">
-        <nav>
-            <a href="/" class="logo">薩摩ノベルズ</a>
+<header class="site-header">
+    <nav>
+        <a href="/" class="logo">薩摩ノベルズ</a>
 
-            <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開く">
+        <!-- PC用ナビゲーション -->
+        <div class="nav-links">
+            <!-- ログインしていないユーザー向けのリンク（PC） -->
+            <% if (!user) { %>
+                <a href="/login">ログイン</a>
+                <a href="/register" class="btn btn-primary">新規登録</a>
+            <% } %>
+        </div>
+
+        <div class="header-actions">
+            <!-- PC用検索フォーム -->
+            <form action="/search" method="GET" class="search-form">
+                <input type="search" name="q" placeholder="小説を検索..." class="search-input" aria-label="検索キーワード">
+                <button type="submit" class="search-submit-btn" aria-label="検索"></button>
+            </form>
+
+            <!-- ログイン状態による表示切り替え -->
+            <% if (user) { %>
+                <!-- ログイン済み: ユーザードロップダウンメニュー -->
+                <div class="dropdown" id="user-menu">
+                    <button class="dropdown-toggle" id="user-menu-button" aria-haspopup="true" aria-expanded="false" aria-label="ユーザーメニューを開く">
+                        <img src="<%= user.avatarUrl || 'https://www.gravatar.com/avatar/?d=mp&s=32' %>" alt="ユーザーアバター" class="avatar-small">
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="/profile" class="dropdown-item">プロフィール</a>
+                        <a href="/likes" class="dropdown-item">いいねした小説</a>
+                        <a href="/history" class="dropdown-item">閲覧履歴</a>
+                        <a href="/account/settings" class="dropdown-item">アカウント設定</a>
+                        <% if (user.role === 'admin') { %>
+                            <div class="dropdown-divider"></div>
+                            <a href="/admin/users" class="dropdown-item">ユーザー管理</a>
+                            <a href="/admin/novels" class="dropdown-item">小説管理</a>
+                        <% } %>
+                        <div class="dropdown-divider"></div>
+                        <form action="/logout" method="POST">
+                            <button type="submit" class="dropdown-item logout-btn">ログアウト</button>
+                        </form>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- スマホ用検索アイコン -->
+            <button class="search-toggle-btn" id="search-toggle-btn" aria-label="検索フォームを開く">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            </button>
+            
+            <!-- スマホ用ハンバーガーメニュー -->
+            <button class="hamburger-menu" id="hamburger-menu" aria-label="メニューを開く" aria-controls="mobile-nav-menu">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
-
-            <div class="nav-links" id="nav-links">
-                <a href="/">ホーム</a>
-                <% if (user) { %>
-                    <a href="/profile">プロフィール</a>
-
-                    <% if (user.role === 'admin') { %>
-                        <a href="/admin/users">ユーザー管理</a>
-                        <a href="/admin/novels">小説管理</a>
-                    <% } %>
-
-                    <a href="/likes">いいねした小説</a>
-                    <a href="/history">閲覧履歴</a>
-
-                    <form action="/logout" method="POST" style="margin: 0;">
-                        <button type="submit" class="btn btn-secondary">ログアウト</button>
-                    </form>
-
-                <% } else { %>
-                    <a href="/login">ログイン</a>
-                    <a href="/register">新規登録</a>
-                <% } %>
-            </div>
-        </nav>
-    </header>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const hamburger = document.getElementById('hamburger-menu');
-            const navLinks = document.getElementById('nav-links');
-
-            if (hamburger && navLinks) {
-                hamburger.addEventListener('click', () => {
-                    navLinks.classList.toggle('is-active');
-                    hamburger.classList.toggle('is-active');
-                });
-            }
-        });
-    </script>
+        </div>
+    </nav>
+</header>

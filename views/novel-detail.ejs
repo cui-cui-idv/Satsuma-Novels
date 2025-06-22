@@ -1,24 +1,42 @@
 <%- include('partials/header') %>
 
 <main class="container" style="max-width: 900px;">
-    <div class="card">
-        <h1 style="border: none; margin-bottom: 0.5rem;"><%= novel.title %></h1>
-        <p style="color: var(--font-secondary);">作者: <%= novel.authorName %></p>
-        <p style="margin-top: 1rem;"><%= novel.description %></p>
+    <div class="card series-header-card">
+        <h1 class="series-title"><%= novel.title %></h1>
+        <p class="series-meta">
+            <a href="/users/@<%= novel.authorHandle %>">作者: <%= novel.authorName %></a>
+        </p>
+
+        <% if (novel.tags && novel.tags.length > 0) { %>
+            <div class="tags-container">
+                <% novel.tags.forEach(tag => { %>
+                    <a href="/tags/<%= tag %>" class="btn-tag"><%= tag %></a>
+                <% }) %>
+            </div>
+        <% } %>
+        
+        <p class="series-description"><%= novel.description || 'あらすじはありません。' %></p>
+
+        <div class="interaction-area">
+            <button id="like-button" class="btn <%= isLiked ? 'btn-primary' : 'btn-secondary' %>">
+                <span class="like-icon">♥</span> いいね <span id="like-count"><%= novel.likeCount || 0 %></span>
+            </button>
         </div>
+    </div>
 
     <div class="card">
-        <div style="display:flex; justify-content: space-between; align-items: center;">
-            <h2 class="card-title">目次</h2>
+        <div class="toc-header">
+            <h2 class="card-title" style="margin:0; border:none;">目次</h2>
             <% if (user && user.uid === novel.authorId) { %>
                 <a href="/novels/<%= novel.id %>/episodes/new" class="btn btn-primary">新しい話を追加</a>
             <% } %>
         </div>
-        <ul style="list-style: none; padding: 0;">
+
+        <ul class="toc-list">
             <% if (episodes.length > 0) { %>
                 <% episodes.forEach(episode => { %>
-                    <li style="border-bottom: 1px solid var(--border-color);">
-                        <a href="/novels/<%= novel.id %>/episodes/<%= episode.id %>" style="display: block; padding: 1rem; text-decoration: none; color: var(--font-primary);">
+                    <li class="toc-item">
+                        <a href="/novels/<%= novel.id %>/episodes/<%= episode.id %>" class="toc-link">
                             <%= episode.title %>
                         </a>
                     </li>
@@ -31,3 +49,42 @@
 </main>
 
 <%- include('partials/footer') %>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const likeButton = document.getElementById('like-button');
+        if (!likeButton) return;
+
+        const likeCountSpan = document.getElementById('like-count');
+        
+        <% if (!user) { %>
+            likeButton.disabled = true;
+            likeButton.style.cursor = 'not-allowed';
+            likeButton.title = 'いいねするにはログインが必要です';
+        <% } else { %>
+            likeButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/novels/<%= novel.id %>/like', {
+                        method: 'POST',
+                    });
+
+                    if (!response.ok) throw new Error('サーバーエラー');
+                    
+                    const currentCount = parseInt(likeCountSpan.textContent);
+                    if (likeButton.classList.contains('btn-primary')) {
+                        likeButton.classList.remove('btn-primary');
+                        likeButton.classList.add('btn-secondary');
+                        likeCountSpan.textContent = currentCount - 1;
+                    } else {
+                        likeButton.classList.remove('btn-secondary');
+                        likeButton.classList.add('btn-primary');
+                        likeCountSpan.textContent = currentCount + 1;
+                    }
+                } catch (error) {
+                    console.error('いいねに失敗しました:', error);
+                    alert('エラーが発生しました。');
+                }
+            });
+        <% } %>
+    });
+</script>

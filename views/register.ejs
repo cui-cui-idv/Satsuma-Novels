@@ -4,7 +4,11 @@
         <h2>新規登録</h2>
         <form id="register-form">
             <div class="input-group">
-                <input type="text" id="username" name="username" required placeholder="ユーザー名">
+                <input type="text" id="username" name="username" required placeholder="ユーザー名（表示名）">
+            </div>
+            <div class="input-group">
+                <input type="text" id="handle" name="handle" required pattern="^[a-zA-Z0-9_]{3,15}$" placeholder="ユーザーID (3〜15文字の半角英数字と_)">
+                <small style="color: var(--font-secondary); font-size: 0.8rem;">これはプロフィールURLに使われ、後から変更できません。</small>
             </div>
             <div class="input-group">
                 <input type="email" id="email" name="email" required placeholder="メールアドレス">
@@ -33,28 +37,29 @@ document.addEventListener('DOMContentLoaded', () => {
         messageEl.style.color = 'var(--font-secondary)';
 
         const username = document.getElementById('username').value;
+        const handle = document.getElementById('handle').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
         try {
-            // 1. Firebase Authにユーザーを作成
             const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
             const user = userCredential.user;
-
-            // 2. 作成したユーザーのプロフィール情報（表示名）を更新
             await user.updateProfile({ displayName: username });
-
-            // 3. 確認メールを送信
             await user.sendEmailVerification();
 
-            // 4. サーバーに通知してFirestoreにユーザーデータを作成
-            await fetch('/register-firestore', {
+            const response = await fetch('/register-firestore', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: user.uid, email: user.email, username: username })
+                body: JSON.stringify({ uid: user.uid, email: user.email, username: username, handle: handle })
             });
 
-            // 登録成功メッセージを表示
+            if (!response.ok) {
+                const errorData = await response.json();
+                // サーバー側でエラーが起きた場合、Authに作成したユーザーを削除するクリーンアップ処理
+                await user.delete();
+                throw new Error(errorData.message || 'データベースへの登録に失敗しました。');
+            }
+
             wrapperEl.innerHTML = `
                 <div style="text-align: center;">
                     <h2>登録ありがとうございます</h2>
@@ -62,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="/login" class="btn btn-primary" style="margin-top: 2rem;">ログインページへ</a>
                 </div>
             `;
-
         } catch (error) {
             console.error('登録エラー:', error);
             messageEl.style.color = '#ff4d4d';

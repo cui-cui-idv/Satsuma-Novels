@@ -1,36 +1,49 @@
+<%- include('partials/header') %>
+
 <% if (user) { %>
-    <%- include('partials/header') %>
     <main class="container">
-<div class="card">
-    <h2>ようこそ、<%= user.username %>さん</h2>
-    <p>ここからあなたの物語が始まります。</p>
-    <a href="/novels/new" class="btn btn-primary" style="margin-top: 1rem;">新しいシリーズを開始する</a>
-</div>
+        <div class="card">
+            <h2>ようこそ、<%= user.username %>さん</h2>
+            <p>ここからあなたの物語が始まります。</p>
+            <a href="/novels/new" class="btn btn-primary" style="margin-top: 1rem;">新しいシリーズを開始する</a>
+        </div>
 
         <h2>人気作品</h2>
         <div class="grid-container">
-            <% popularNovels.forEach(novel => { %>
-                <a href="/novels/<%= novel.id %>" class="card-link">
-                    <div class="card">
-                        <h4 class="card-title"><%= novel.title %></h4>
-                        <p style="flex-grow: 1; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
-                        <small style="color: var(--font-secondary); text-align: right;">作者: <%= novel.authorName %></small>
-                    </div>
-                </a>
-            <% }) %>
+            <% if (popularNovels && popularNovels.length > 0) { %>
+                <% popularNovels.forEach(novel => { %>
+                    <a href="/novels/<%= novel.id %>" class="card-link">
+                        <div class="card">
+                            <h4 class="card-title"><%= novel.title %></h4>
+                            <p style="flex-grow: 1; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
+                            <small class="card-author">
+                                <a href="/users/@<%= novel.authorHandle %>">作者: <%= novel.authorName %></a>
+                            </small>
+                            </div>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                <p style="color: var(--font-secondary);">まだ人気作品はありません。</p>
+            <% } %>
         </div>
 
         <h2 style="margin-top: 3rem;">新着作品</h2>
         <div class="grid-container">
-            <% newNovels.forEach(novel => { %>
-                <a href="/novels/<%= novel.id %>" class="card-link">
-                    <div class="card">
-                        <h4 class="card-title"><%= novel.title %></h4>
-                        <p style="flex-grow: 1; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
-                        <small style="color: var(--font-secondary); text-align: right;">作者: <%= novel.authorName %></small>
-                    </div>
-                </a>
-            <% }) %>
+            <% if (newNovels && newNovels.length > 0) { %>
+                <% newNovels.forEach(novel => { %>
+                    <a href="/novels/<%= novel.id %>" class="card-link">
+                        <div class="card">
+                            <h4 class="card-title"><%= novel.title %></h4>
+                            <p style="flex-grow: 1; color: var(--font-secondary);"><%= novel.description ? novel.description.substring(0, 80) + '...' : 'あらすじはありません' %></p>
+                            <small class="card-author">
+                                <a href="/users/@<%= novel.authorHandle %>">作者: <%= novel.authorName %></a>
+                            </small>
+                        </div>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                 <p style="color: var(--font-secondary);">まだ新着作品はありません。</p>
+            <% } %>
         </div>
     </main>
     <%- include('partials/footer') %>

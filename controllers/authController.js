@@ -71,41 +71,32 @@ exports.showLoginPage = (req, res) => {
 };
 
 // ログイン処理
+// controllers/authController.js (loginUser関数)
 exports.loginUser = async (req, res) => {
     const { idToken } = req.body;
     try {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
-
         const userDocRef = db.collection('users').doc(uid);
         const userDoc = await userDocRef.get();
-
         if (!userDoc.exists) {
             return res.status(404).send('ユーザーデータが見つかりません');
         }
-        
         const userData = userDoc.data();
-
-        // --- ▼▼▼ 同期処理を追加 ▼▼▼ ---
-        // トークンのメールアドレスとDBのメールアドレスが違う場合、DBを更新する
         if (decodedToken.email !== userData.email) {
-            console.log(`メールアドレスの同期: ${userData.email} -> ${decodedToken.email}`);
             await userDocRef.update({ email: decodedToken.email });
-            userData.email = decodedToken.email; // userDataオブジェクトも更新
+            userData.email = decodedToken.email;
         }
-        // --- ▲▲▲ ここまで追加 ▲▲▲ ---
-
         // セッションにユーザー情報を保存
         req.session.user = {
             uid: uid,
-            email: userData.email, // 更新された可能性のあるemailを使う
+            email: userData.email,
             username: userData.username,
             role: userData.role,
-            email_verified: decodedToken.email_verified
+            email_verified: decodedToken.email_verified,
+            handle: userData.handle
         };
-        
         res.status(200).send({ message: 'ログイン成功' });
-
     } catch (error) {
         console.error('ログインエラー:', error);
         res.status(401).send('ログインに失敗しました: ' + error.message);
@@ -133,12 +124,25 @@ exports.showResetPasswordPage = (req, res) => {
 
 exports.finalizeRegistration = async (req, res) => {
     try {
-        const { uid, email, username } = req.body;
+        const { uid, email, username, handle } = req.body;
 
-        // Firestoreにユーザー情報を保存
+        // 1. ハンドル名の形式をサーバー側でも検証
+        const handleRegex = /^[a-zA-Z0-9_]{3,15}$/;
+        if (!handleRegex.test(handle)) {
+            return res.status(400).json({ message: 'ユーザーIDの形式が正しくありません。' });
+        }
+
+        // 2. ハンドル名の重複をチェック
+        const handleSnapshot = await db.collection('users').where('handle', '==', handle).get();
+        if (!handleSnapshot.empty) {
+            return res.status(400).json({ message: 'このユーザーIDは既に使用されています。' });
+        }
+        
+        // 3. Firestoreにユーザー情報を保存
         await db.collection('users').doc(uid).set({
             username: username,
             email: email,
+            handle: handle, // handleを保存
             role: 'general',
             bio: '',
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -147,8 +151,6 @@ exports.finalizeRegistration = async (req, res) => {
         res.status(201).json({ success: true, message: 'ユーザーデータの作成に成功しました。' });
     } catch (error) {
         console.error('Firestoreへのユーザー作成エラー:', error);
-        // このエラーは、すでにAuthにユーザーがいるのにDB作成に失敗した場合に起きる
-        // 必要に応じて、Authからユーザーを削除するなどのクリーンアップ処理をここに入れる
         res.status(500).json({ success: false, message: 'データベースエラーが発生しました。' });
     }
 };

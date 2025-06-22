@@ -83,3 +83,37 @@ exports.updateProfile = async (req, res) => {
         res.status(500).send('更新中にエラーが発生しました');
     }
 };
+
+// 他のユーザーも見ることができる公開プロフィールページ
+exports.showUserProfilePage = async (req, res) => {
+    try {
+        const targetUserId = req.params.id; // URLから表示したいユーザーのIDを取得
+
+        // 1. 表示対象のユーザー情報を取得
+        const userDoc = await db.collection('users').doc(targetUserId).get();
+        if (!userDoc.exists) {
+            return res.status(404).render('404', { title: 'ユーザーが見つかりません' });
+        }
+        const userProfile = userDoc.data();
+
+        // 2. そのユーザーが投稿した「公開済み」の小説リストを取得
+        const novelsSnapshot = await db.collection('novels')
+            .where('authorId', '==', targetUserId)
+            .where('status', '==', 'published') // 公開(published)の作品のみ
+            .orderBy('createdAt', 'desc')
+            .get();
+        
+        const userNovels = novelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // 3. user-profile.ejs を使ってページをレンダリング
+        res.render('user-profile', {
+            title: `${userProfile.username}のプロフィール`,
+            profileData: userProfile, // 表示するユーザーのプロフィール
+            novels: userNovels       // 表示するユーザーの公開済み小説
+        });
+
+    } catch (error) {
+        console.error('公開プロフィールページの表示エラー:', error);
+        res.status(500).send('エラーが発生しました。');
+    }
+};

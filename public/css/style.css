@@ -54,7 +54,7 @@ a:hover {
 
 /* --- ヘッダー & ナビゲーション --- */
 .site-header {
-    padding: 1rem 2rem;
+    padding: 1rem 1.5rem;
     position: fixed;
     width: 100%;
     top: 0;
@@ -63,13 +63,15 @@ a:hover {
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
 }
+
 .site-header nav {
-    display: flex;             /* 中の要素（ロゴ、メニュー）を横に並べる */
-    justify-content: space-between; /* 両端に配置する */
-    align-items: center;       /* 縦方向の中央に揃える */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     max-width: 1400px;
     margin: 0 auto;
 }
+
 .site-header .logo {
     font-size: 1.5rem;
     font-weight: 700;
@@ -77,21 +79,292 @@ a:hover {
     background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    z-index: 1030;
+    flex-shrink: 0; /* ロゴが縮まないようにする */
 }
-.site-header .nav-links {
+
+/* PC用ナビゲーションリンク */
+.nav-links {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1.5rem;
 }
-.site-header .nav-links a {
+
+.nav-links a {
     color: var(--font-secondary);
-    text-decoration: none;
     font-weight: 700;
+    white-space: nowrap;
 }
+
+.nav-links .btn {
+    font-size: 0.9rem;
+}
+
+/* ヘッダー右側のアクション（検索、ユーザーメニューなど） */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* ヘッダー内検索フォーム */
+.search-form {
+    position: relative;
+}
+
+.search-input {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 50em;
+    padding: 0.5rem 1rem 0.5rem 2.5rem; /* 左側にアイコン用のスペース */
+    color: var(--font-primary);
+    transition: all 0.3s ease;
+    width: 200px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+    width: 250px;
+}
+
+.search-submit-btn {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background-color: transparent;
+    border: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23A0A0A0'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+}
+
+/* ハンバーガーメニューボタン（SP用） */
 .hamburger-menu {
-    display: none;
+    display: none; /* PCでは非表示 */
+    width: 2rem;
+    height: 2rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1020;
+    position: relative;
 }
+
+.hamburger-menu span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background: var(--font-primary);
+    border-radius: 3px;
+    transition: all 0.3s ease-in-out;
+    transform-origin: center;
+}
+
+.hamburger-menu span:nth-of-type(2) {
+    margin: 0.5rem 0;
+}
+
+/* 開いた状態（X印） */
+.hamburger-menu.is-active span:nth-of-type(1) {
+    transform: translateY(11px) rotate(45deg);
+}
+.hamburger-menu.is-active span:nth-of-type(2) {
+    opacity: 0;
+}
+.hamburger-menu.is-active span:nth-of-type(3) {
+    transform: translateY(-11px) rotate(-45deg);
+}
+
+/* スマホ用オーバーレイメニュー */
+.mobile-nav-menu {
+    display: none; /* 通常は非表示 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: var(--bg-surface);
+    z-index: 1010;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.mobile-nav-menu.is-active {
+    display: flex; /* is-activeクラスで表示 */
+}
+
+.mobile-nav-menu a,
+.mobile-nav-menu form {
+    width: 80%;
+    text-align: center;
+}
+.mobile-nav-menu a {
+    font-size: 1.5rem;
+    padding: 0.5rem 0;
+    font-weight: 700;
+    color: var(--font-primary);
+}
+.mobile-nav-menu .btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.2rem;
+}
+
+/* --- ヘッダー・ドロップダウンメニュー（ユーザーメニュー用） --- */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 50em;
+    color: var(--font-secondary);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.25rem; /* アイコンに合わせる */
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+.dropdown-toggle:hover {
+    background: var(--bg-surface);
+    color: var(--font-primary);
+}
+.dropdown-toggle .avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: var(--bg-surface);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    border: 1px solid var(--border-color);
+    width: 220px;
+    z-index: 1100;
+    padding: 0.5rem 0;
+    overflow: hidden;
+}
+
+.dropdown.is-active .dropdown-content {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1.5rem;
+    color: var(--font-primary);
+    text-decoration: none;
+    font-size: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-family);
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-deep);
+    text-decoration: none;
+    color: var(--font-primary); /* ホバー時の色も維持 */
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 0.5rem 0;
+}
+
+.dropdown-item.logout-btn {
+    color: var(--accent-secondary); /* ログアウトボタンの色 */
+}
+
+.dropdown-item.logout-btn:hover {
+    color: #ff4d4d; /* ホバーで赤く */
+}
+
+
+/* --- スマホ用検索オーバーレイ --- */
+.search-toggle-btn {
+    display: none; /* PCでは非表示 */
+    background: none;
+    border: none;
+    color: var(--font-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.search-overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+}
+.search-overlay .close-btn {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    font-size: 3rem;
+    color: var(--font-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.search-overlay-form {
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+}
+.search-overlay-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--font-secondary);
+    color: white;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    padding: 1rem;
+    text-align: center;
+}
+.search-overlay-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+.search-overlay-form .btn {
+    margin-top: 2rem;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+}
+
 
 /* --- コンテンツコンテナ --- */
 .container {
@@ -100,7 +373,7 @@ a:hover {
     padding: 8rem 2rem 2rem;
 }
 
-/* --- ボタン --- */
+/* --- ボタン類 --- */
 .btn {
     display: inline-block;
     padding: 0.8rem 2rem;
@@ -118,19 +391,36 @@ a:hover {
 .btn-primary:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+    color: white; /* ホバー時のテキスト色を維持 */
 }
 .btn-secondary {
-    background-color: var(--bg-surface);      /* 背景色を明示的に指定 */
-    border: 2px solid var(--accent-primary);  /* 枠線の色をアクセントカラーに指定 */
-    color: var(--accent-primary);             /* 文字色もアクセントカラーに */
-    font-weight: 700;
+    background-color: var(--bg-surface);
+    border: 2px solid var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 .btn-secondary:hover {
-    background-color: var(--accent-primary);  /* ホバー時に背景色をアクセントカラーに */
-    color: var(--bg-deep);                    /* ホバー時に文字色を背景色にしてコントラストを出す */
+    background-color: var(--accent-primary);
+    color: var(--bg-deep);
     border-color: var(--accent-primary);
     transform: scale(1.05);
+}
+
+.btn-tag {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 50em;
+    color: var(--font-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+.btn-tag:hover {
+    color: var(--font-primary);
+    border-color: var(--accent-primary);
+    background: var(--accent-primary);
 }
 
 /* --- カードコンポーネント --- */
@@ -151,13 +441,16 @@ a:hover {
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
     line-height: 1.4;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
     word-break: break-word;
 }
 .card p {
-    flex-grow: 1;
+    flex-grow: 1; /* 内容が少なくても高さを揃える */
+}
+.card-author {
+    color: var(--font-secondary);
+    text-align: right;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
 }
 .card-link {
     text-decoration: none;
@@ -171,23 +464,6 @@ a:hover {
     box-shadow: 0 8px 30px 0 var(--shadow-color);
 }
 
-/* --- タグ表示用スタイル --- */
-.btn-tag {
-    display: inline-block;
-    padding: 0.3rem 0.8rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 50em;
-    color: var(--font-secondary);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-.btn-tag:hover {
-    color: var(--font-primary);
-    border-color: var(--accent-primary);
-    background: var(--accent-primary);
-}
 
 /* --- ログイン前ヒーローセクション --- */
 .hero-section {
@@ -246,7 +522,6 @@ a:hover {
     text-align: center;
     font-size: 2rem;
     margin-bottom: 2rem;
-    color: var(--font-primary);
 }
 .auth-form-wrapper form {
     display: flex;
@@ -377,17 +652,114 @@ a:hover {
     background-color: var(--bg-surface);
     box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
 }
-.bio-textarea::-webkit-scrollbar {
-    width: 8px;
+
+/* --- プロフィールページ --- */
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
 }
-.bio-textarea::-webkit-scrollbar-track {
-    background: var(--bg-surface);
-    border-radius: 4px;
+.profile-header .profile-username {
+    margin: 0;
+    border: none;
+    font-size: 2rem;
+    flex-shrink: 0;
 }
-.bio-textarea::-webkit-scrollbar-thumb {
-    background: var(--accent-primary);
-    border-radius: 4px;
+.profile-actions {
+    display: flex;
+    gap: 1rem;
 }
+
+/* --- 小説詳細・目次ページ --- */
+.series-header-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.series-title {
+    border: none;
+    margin: 0;
+    padding: 0;
+    font-size: 2.25rem;
+}
+.series-meta {
+    color: var(--font-secondary);
+}
+.series-description {
+    margin-top: 1rem;
+    line-height: 1.8;
+}
+.tags-container {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.interaction-area {
+    margin-top: 2rem;
+    text-align: center;
+}
+.toc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.toc-item:last-child {
+    border-bottom: none;
+}
+.toc-link {
+    display: block;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+}
+.toc-item:last-child .toc-link {
+    border-bottom: none;
+}
+.toc-link:hover {
+    background-color: var(--bg-deep);
+}
+
+
+/* --- 管理者ページテーブル --- */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+    font-size: 0.9rem;
+    overflow-x: auto;
+}
+.admin-table th, .admin-table td {
+    padding: 1rem;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+.admin-table thead th {
+    border-bottom-width: 2px;
+    color: var(--font-secondary);
+}
+.admin-table .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+.admin-table .btn-delete {
+    background: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+    color: var(--font-primary);
+}
+
 
 /* --- 404エラーページ --- */
 .error-page-container {
@@ -397,7 +769,6 @@ a:hover {
     text-align: center;
     min-height: 100vh;
     padding: 2rem;
-    padding-top: 100px;
 }
 .error-content {
     animation: fadeIn 1s ease-out;
@@ -415,7 +786,6 @@ a:hover {
 .error-message {
     font-size: 1.75rem;
     font-weight: 700;
-    color: var(--font-primary);
     margin-top: 0;
     margin-bottom: 0.5rem;
 }
@@ -426,7 +796,7 @@ a:hover {
     margin: 0 auto;
 }
 
-/* --- カスタムセレクトボックス（ドロップダウン） --- */
+/* --- カスタムセレクトボックス --- */
 .custom-select {
     display: inline-block;
     font-size: 0.9rem;
@@ -436,33 +806,45 @@ a:hover {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.5rem 2rem 0.5rem 1rem;
-    margin: 0;
-
-    /* ▼▼▼ デフォルトの矢印を消すための設定 ▼▼▼ */
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-
-    /* ▼▼▼ カスタム矢印を背景画像として設定 ▼▼▼ */
-    /* 白い下向きの三角形をSVGデータとして指定しています */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EAEAEA'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.5rem center;
     background-size: 1.5em;
-
     cursor: pointer;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
 .custom-select:hover {
     border-color: var(--font-secondary);
 }
-
 .custom-select:focus {
     outline: none;
     border-color: var(--accent-primary);
     box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
 }
+
+/* --- フッター --- */
+.site-footer {
+    background-color: var(--bg-deep);
+    border-top: 1px solid var(--border-color);
+    color: var(--font-secondary);
+    padding: 2rem 1rem;
+    text-align: center; /* <<< ご要望の中央寄せ */
+    font-size: 0.9rem;
+    margin-top: 4rem; /* コンテンツとの余白 */
+}
+
+.site-footer a {
+    color: var(--font-secondary);
+    text-decoration: underline;
+}
+
+.site-footer a:hover {
+    color: var(--font-primary);
+}
+
 
 /* --- アニメーション --- */
 @keyframes fadeIn {
@@ -478,7 +860,7 @@ a:hover {
     to { opacity: 1; transform: translateY(0); }
 }
 @keyframes pulse {
-    0% {
+    0%, 100% {
         transform: scale(1);
         text-shadow: 0 0 5px rgba(0, 191, 255, 0.3);
     }
@@ -486,101 +868,46 @@ a:hover {
         transform: scale(1.05);
         text-shadow: 0 0 25px rgba(0, 191, 255, 0.6);
     }
-    100% {
-        transform: scale(1);
-        text-shadow: 0 0 5px rgba(0, 191, 255, 0.3);
-    }
 }
 
 /* --- レスポンシブ対応 (画面幅768px以下) --- */
 @media screen and (max-width: 768px) {
+    /* --- 基本レイアウト調整 --- */
     .container {
         padding: 6rem 1rem 1rem;
     }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+
+    /* --- ヘッダー & ナビゲーション --- */
     .site-header {
         padding: 1rem 1.5rem;
     }
-
-    /* PC用のナビゲーションを非表示に */
-    .site-header .nav-links {
+    /* PC用のナビゲーションと検索フォームを非表示に */
+    .site-header .nav-links,
+    .site-header .search-form {
         display: none;
     }
-
-    /* ハンバーガーメニューを表示 */
-    .hamburger-menu {
+    /* スマホ用のハンバーガーメニューと検索アイコンを表示 */
+    .hamburger-menu,
+    .search-toggle-btn {
         display: block;
-        width: 2rem;
-        height: 2rem;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        z-index: 1020;
-        position: relative;
-    }
-    .hamburger-menu span {
-        display: block;
-        width: 2rem;
-        height: 3px;
-        background: var(--font-primary);
-        border-radius: 10px;
-        transition: all 0.3s ease-in-out;
-        position: relative;
-        transform-origin: center;
-    }
-    .hamburger-menu span:nth-of-type(2) {
-        margin: 0.5rem 0;
-    }
-    .hamburger-menu.is-active span:nth-of-type(1) {
-        transform: translateY(11px) rotate(45deg);
-    }
-    .hamburger-menu.is-active span:nth-of-type(2) {
-        opacity: 0;
-    }
-    .hamburger-menu.is-active span:nth-of-type(3) {
-        transform: translateY(-11px) rotate(-45deg);
     }
 
-    /* スマホ用メニュー本体のスタイル */
-    .nav-links.is-active {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 1.5rem;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        background: var(--bg-surface);
-        z-index: 1010;
-    }
-
-    /* スマホ用メニュー内の各項目のスタイル */
-    .nav-links.is-active a,
-    .nav-links.is-active form {
-        width: 80%;
-        text-align: center;
-    }
-    .nav-links.is-active a {
-        font-size: 1.5rem;
-        padding: 0.5rem 0;
-        font-weight: 700;
-        color: var(--font-primary);
-    }
-    .nav-links.is-active .btn {
-        width: 100%;
-        padding: 1rem;
-        font-size: 1.2rem;
-    }
-
-    /* ヒーローセクション */
+    /* --- ヒーローセクション --- */
     .hero-section .subtitle {
         max-width: 90%;
     }
 
-    /* 2カラムレイアウトを1カラムに */
+    /* --- 認証フォーム --- */
+    .auth-container {
+        padding: 1rem;
+    }
+    .auth-form-wrapper {
+        padding: 2rem;
+    }
+    
+    /* --- エディタ --- */
     .editor-layout {
         flex-direction: column;
     }
@@ -591,47 +918,8 @@ a:hover {
     .novel-title-input {
         font-size: 1.8rem;
     }
-
-    /* グリッドを1カラムに */
-    .grid-container {
-        grid-template-columns: 1fr;
-    }
-
-    /* 認証フォーム */
-    .auth-container {
-        padding: 1rem;
-    }
-    .auth-form-wrapper {
-        padding: 2rem;
-    }
-
-    /* 見出しのフォントサイズ調整 */
-    h1 { font-size: 2rem; }
-    h2 { font-size: 1.75rem; }
-}
-
-/* --- プロフィールページヘッダー --- */
-.profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.profile-header .profile-username {
-    margin: 0;
-    border: none;
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.profile-actions {
-    display: flex;
-    gap: 1rem;
-}
-
-/* --- レスポンシブ対応 (スマホ用) --- */
-@media screen and (max-width: 768px) {
+    
+    /* --- プロフィールヘッダー --- */
     .profile-header {
         flex-direction: column;
         align-items: stretch;
@@ -642,6 +930,7 @@ a:hover {
     }
     .profile-actions {
         width: 100%;
+        flex-direction: column; /* ボタンを縦に並べる場合 */
     }
     .profile-actions .btn {
         flex-grow: 1;
