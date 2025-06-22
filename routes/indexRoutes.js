@@ -18,4 +18,9 @@ router.get('/admin', isAuthenticated, hasRole(['admin', 'sub-admin']), (req, res
     res.redirect('/admin/users'); // ★ 3. (改善) 汎用ページではなく、具体的な管理ページに移動させる
 });
 
+// プライバシーポリシーページ
+router.get('/privacy-policy', (req, res) => {
+    res.render('privacy-policy', { title: 'プライバシーポリシー' });
+});
+
 module.exports = router;
