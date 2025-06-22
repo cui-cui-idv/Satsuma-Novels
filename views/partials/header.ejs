@@ -15,16 +15,6 @@
 <header class="site-header">
     <nav>
         <a href="/" class="logo">薩摩ノベルズ</a>
-
-        <!-- PC用ナビゲーション -->
-        <div class="nav-links">
-            <!-- ログインしていないユーザー向けのリンク（PC） -->
-            <% if (!user) { %>
-                <a href="/login">ログイン</a>
-                <a href="/register" class="btn btn-primary">新規登録</a>
-            <% } %>
-        </div>
-
         <div class="header-actions">
             <!-- PC用検索フォーム -->
             <form action="/search" method="GET" class="search-form">
