@@ -74,27 +74,36 @@ exports.showLoginPage = (req, res) => {
 exports.loginUser = async (req, res) => {
     const { idToken } = req.body;
     try {
-        // IDトークンを検証
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        // Firestoreからユーザーの役割を取得
-        const userDoc = await db.collection('users').doc(uid).get();
+        const userDocRef = db.collection('users').doc(uid);
+        const userDoc = await userDocRef.get();
+
         if (!userDoc.exists) {
             return res.status(404).send('ユーザーデータが見つかりません');
         }
+        
         const userData = userDoc.data();
+
+        // --- ▼▼▼ 同期処理を追加 ▼▼▼ ---
+        // トークンのメールアドレスとDBのメールアドレスが違う場合、DBを更新する
+        if (decodedToken.email !== userData.email) {
+            console.log(`メールアドレスの同期: ${userData.email} -> ${decodedToken.email}`);
+            await userDocRef.update({ email: decodedToken.email });
+            userData.email = decodedToken.email; // userDataオブジェクトも更新
+        }
+        // --- ▲▲▲ ここまで追加 ▲▲▲ ---
 
         // セッションにユーザー情報を保存
         req.session.user = {
             uid: uid,
-            email: userData.email,
+            email: userData.email, // 更新された可能性のあるemailを使う
             username: userData.username,
             role: userData.role,
             email_verified: decodedToken.email_verified
         };
         
-        // すぐにレスポンスを返す
         res.status(200).send({ message: 'ログイン成功' });
 
     } catch (error) {
@@ -142,4 +151,9 @@ exports.finalizeRegistration = async (req, res) => {
         // 必要に応じて、Authからユーザーを削除するなどのクリーンアップ処理をここに入れる
         res.status(500).json({ success: false, message: 'データベースエラーが発生しました。' });
     }
+};
+
+// メール認証アクションページを表示
+exports.showVerifyEmailPage = (req, res) => {
+    res.render('verify-email-action', { title: 'メールアドレスの確認' });
 };

@@ -14,7 +14,7 @@
                 <label for="current-password-for-email">現在のパスワード（確認用）</label>
                 <input type="password" id="current-password-for-email" required>
             </div>
-            <button type="submit" class="btn btn-primary">メールアドレスを更新</button>
+            <button type="submit" class="btn btn-primary">確認メールを送信</button>
             <p id="email-message" style="margin-top: 1rem; text-align: center;"></p>
         </form>
     </div>
@@ -42,10 +42,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth();
 
-    // ▼▼▼ 認証状態が変わるのを監視するリスナーを登録 ▼▼▼
     auth.onAuthStateChanged(user => {
-        
-
         if (user) {
             // --- ユーザーがログインしている場合の処理 ---
             const emailForm = document.getElementById('update-email-form');
@@ -53,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const emailMessage = document.getElementById('email-message');
             const passwordMessage = document.getElementById('password-message');
 
-            // メールアドレス変更処理
+            // --- メールアドレス変更処理 ---
             emailForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 emailMessage.textContent = '処理中...';
@@ -63,26 +60,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 const password = document.getElementById('current-password-for-email').value;
 
                 try {
+                    // 1. 安全のため、現在のパスワードで再認証
                     const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
                     await user.reauthenticateWithCredential(credential);
+                    
+                    // 2. Firebaseにメールアドレス変更をリクエスト
+                    // これにより、Firebaseが自動で新しいアドレスに確認メールを送信します
                     await user.updateEmail(newEmail);
-                    await fetch('/account/update-email', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ newEmail: newEmail })
-                    });
-
+                    
+                    // 3. ユーザーに成功メッセージを表示する
                     emailMessage.style.color = 'var(--accent-primary)';
-                    emailMessage.textContent = 'メールアドレスが正常に更新されました。ページをリロードします。';
-                    setTimeout(() => location.reload(), 2000);
+                    emailMessage.textContent = `確認メールを ${newEmail} に送信しました。メール内のリンクをクリックして変更を完了してください。`;
+                    emailForm.reset();
+
                 } catch (error) {
-                    console.error("メール更新エラー:", error);
+                    console.error("メール更新リクエストエラー:", error);
                     emailMessage.style.color = '#ff4d4d';
-                    emailMessage.textContent = 'エラー: ' + error.message;
+                    if (error.code === 'auth/wrong-password') {
+                        emailMessage.textContent = 'エラー: 現在のパスワードが正しくありません。';
+                    } else if (error.code === 'auth/email-already-in-use') {
+                        emailMessage.textContent = 'エラー: そのメールアドレスは既に使用されています。';
+                    } else {
+                        emailMessage.textContent = 'エラーが発生しました。時間をおいて再試行してください。';
+                    }
                 }
             });
 
-            // パスワード変更処理
+            // --- パスワード変更処理 ---
             passwordForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 passwordMessage.textContent = '処理中...';
@@ -94,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
                     await user.reauthenticateWithCredential(credential);
+
                     await user.updatePassword(newPassword);
                     
                     passwordMessage.style.color = 'var(--accent-primary)';
@@ -108,11 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } else {
             // --- ユーザーがログインしていない場合の処理 ---
-            console.error('ユーザーがログインしていません。フォームを無効化します。');
-            // 必要に応じて、フォームを非表示にしたり、ログインページへのリンクを表示したりする
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => form.style.display = 'none');
-            document.querySelector('.container').innerHTML += '<p style="text-align: center;">この機能を利用するには、ログインが必要です。</p>';
+            const container = document.querySelector('.container');
+            if(container) {
+                container.innerHTML = `
+                    <h2>アカウント設定</h2>
+                    <div class="card" style="text-align:center;">
+                        <p>この機能を利用するには、ログインが必要です。</p>
+                        <a href="/login" class="btn btn-primary" style="margin-top:1rem;">ログインページへ</a>
+                    </div>
+                `;
+            }
         }
     });
 });
