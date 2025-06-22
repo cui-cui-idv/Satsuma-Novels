@@ -83,6 +83,12 @@ app.use((req, res, next) => {
         messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
         appId: process.env.FIREBASE_APP_ID
     };
+    res.locals.firebaseConfig = {
+        apiKey: process.env.FIREBASE_API_KEY,
+        // ...
+        appId: process.env.FIREBASE_APP_ID,
+        recaptchaSiteKey: process.env.RECAPTCHA_V3_SITE_KEY // ← この行を追加
+    };
     next();
 });
 

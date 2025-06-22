@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const { verifyRecaptcha } = require('../middleware/authMiddleware');
 
 // 登録ページ表示
 router.get('/register', authController.showRegisterPage);
@@ -25,5 +26,8 @@ router.post('/register-firestore', authController.finalizeRegistration);
 
 // メール認証のアクションページ
 router.get('/verify-email-action', authController.showVerifyEmailPage);
+
+router.post('/login', verifyRecaptcha, authController.loginUser);
+router.post('/register-firestore', verifyRecaptcha, authController.finalizeRegistration);
 
 module.exports = router;
