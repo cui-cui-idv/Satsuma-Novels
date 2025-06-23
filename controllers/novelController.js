@@ -265,3 +265,67 @@ exports.showEpisodePage = async (req, res) => {
         res.status(500).send('エラーが発生しました');
     }
 };
+
+// エピソード編集ページを表示
+exports.showEpisodeEditPage = async (req, res) => {
+    try {
+        const { novelId, episodeId } = req.params;
+        const episodeDoc = await db.collection('novels').doc(novelId).collection('episodes').doc(episodeId).get();
+
+        if (!episodeDoc.exists) {
+            return res.status(404).render('404', { title: 'ページが見つかりません' });
+        }
+        
+        const episode = episodeDoc.data();
+
+        // 【重要】作者本人かどうかのチェック
+        if (episode.authorId !== req.session.user.uid) {
+            return res.status(403).send('この話を編集する権限がありません。');
+        }
+
+        res.render('edit-episode', {
+            title: `編集: ${episode.title}`,
+            novelId: novelId,
+            episode: { id: episodeDoc.id, ...episode }
+        });
+    } catch (error) {
+        console.error("エピソード編集ページの表示エラー:", error);
+        res.status(500).send('エラーが発生しました');
+    }
+};
+
+// エピソードを更新
+exports.updateEpisode = async (req, res) => {
+    try {
+        const { novelId, episodeId } = req.params;
+        const { title, content, status } = req.body;
+        const episodeRef = db.collection('novels').doc(novelId).collection('episodes').doc(episodeId);
+
+        // 【重要】更新前にもう一度、作者本人かチェック
+        const doc = await episodeRef.get();
+        if (!doc.exists || doc.data().authorId !== req.session.user.uid) {
+            return res.status(403).send('この作品を編集する権限がありません。');
+        }
+
+        // Firestoreのエピソードドキュメントを更新
+        await episodeRef.update({
+            title,
+            content,
+            status,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 親の小説の最終更新日時も更新
+        const novelRef = db.collection('novels').doc(novelId);
+        await novelRef.update({
+            lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 更新後は、編集した話の閲覧ページにリダイレクト
+        res.redirect(`/novels/${novelId}/episodes/${episodeId}`);
+
+    } catch (error) {
+        console.error("エピソードの更新エラー:", error);
+        res.status(500).send('更新中にエラーが発生しました');
+    }
+};

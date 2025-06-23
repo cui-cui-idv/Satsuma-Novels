@@ -32,19 +32,22 @@
             <% } %>
         </div>
 
-        <ul class="toc-list">
-            <% if (episodes.length > 0) { %>
-                <% episodes.forEach(episode => { %>
-                    <li class="toc-item">
-                        <a href="/novels/<%= novel.id %>/episodes/<%= episode.id %>" class="toc-link">
-                            <%= episode.title %>
-                        </a>
-                    </li>
-                <% }) %>
-            <% } else { %>
-                <li style="padding: 1rem;">まだ公開されている話はありません。</li>
-            <% } %>
-        </ul>
+<ul class="toc-list">
+    <% if (episodes.length > 0) { %>
+        <% episodes.forEach(episode => { %>
+            <li class="toc-item" style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="/novels/<%= novel.id %>/episodes/<%= episode.id %>" class="toc-link" style="flex-grow: 1;">
+                    <%= episode.title %>
+                </a>
+                <% if (user && user.uid === novel.authorId) { %>
+                    <a href="/novels/<%= novel.id %>/episodes/<%= episode.id %>/edit" class="btn btn-secondary" style="margin-right: 1.5rem; padding: 0.4rem 0.8rem; font-size: 0.8rem;">編集</a>
+                <% } %>
+            </li>
+        <% }) %>
+    <% } else { %>
+        <li style="padding: 1rem;">まだ公開されている話はありません。</li>
+    <% } %>
+</ul>
     </div>
 </main>
 

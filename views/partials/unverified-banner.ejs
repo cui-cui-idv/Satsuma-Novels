@@ -1,0 +1,6 @@
+<% if (user && !user.email_verified && user.role !== 'admin') { %>
+    <div class="unverified-banner">
+        <span>あなたのメールアドレスはまだ確認されていません。</span>
+        <a href="/please-verify">ここをクリックして、確認メールを再送信してください。</a>
+    </div>
+<% } %>

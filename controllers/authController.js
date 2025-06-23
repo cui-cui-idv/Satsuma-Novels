@@ -160,33 +160,58 @@ exports.showVerifyEmailPage = (req, res) => {
     res.render('verify-email-action', { title: 'メールアドレスの確認' });
 };
 
+// controllers/authController.js
+
 exports.getEmailFromIdentifier = async (req, res) => {
     const { identifier } = req.body;
 
-    // もし入力がメールアドレス形式なら、そのまま返す
     if (identifier.includes('@')) {
         return res.json({ email: identifier });
     }
 
-    // メールアドレス形式でない場合、ハンドル名として処理
     try {
-        // 1. まずFirestoreを検索して、ハンドル名からユーザーのUIDを見つける
         const snapshot = await db.collection('users').where('handle', '==', identifier).limit(1).get();
 
         if (snapshot.empty) {
+            // そもそもFirestoreにハンドル名が存在しない
             return res.status(404).json({ message: 'ユーザーが見つかりません。' });
         }
 
-        const userId = snapshot.docs[0].id;
+        const userDoc = snapshot.docs[0];
+        const userId = userDoc.id;
 
-        // 2.【ここが重要】見つけたUIDを使って、Firebase Authから最新のユーザー情報を取得
+        // Firestoreで見つけたUIDを元に、Authentication本体に問い合わせる
         const userRecord = await admin.auth().getUser(userId);
 
-        // 3. 最新の正しいメールアドレスを返す
+        // Authenticationにも存在した場合のみ、正しいメールアドレスを返す
         return res.json({ email: userRecord.email });
 
     } catch (error) {
+        // Authenticationにユーザーが見つからないエラー(auth/user-not-found)をキャッチした場合
+        if (error.code === 'auth/user-not-found') {
+            console.log(`データの不整合を検知。Firestoreにのみ存在するユーザー(handle: ${identifier})をクリーンアップします。`);
+            
+            // 原因となった孤立データをFirestoreから削除する
+            const snapshot = await db.collection('users').where('handle', '==', identifier).limit(1).get();
+            if (!snapshot.empty) {
+                const docIdToDelete = snapshot.docs[0].id;
+                await db.collection('users').doc(docIdToDelete).delete();
+                console.log(`クリーンアップ完了: ${docIdToDelete}`);
+            }
+
+            // クリーンアップ後、クライアントには通常通り「見つからない」エラーを返す
+            return res.status(404).json({ message: 'ユーザーが見つかりません。' });
+        }
         console.error("ハンドル名からのメール検索エラー:", error);
         return res.status(500).json({ message: 'サーバーエラーが発生しました。' });
     }
 };
+
+exports.showPleaseVerifyPage = (req, res) => {
+    // ユーザーが認証済みならプロフィールにリダイレクト
+    if (req.session.user && req.session.user.email_verified) {
+        return res.redirect('/profile');
+    }
+    res.render('please-verify', { title: 'メールアドレスの確認' });
+};
+

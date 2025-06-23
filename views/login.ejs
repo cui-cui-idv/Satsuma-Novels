@@ -29,29 +29,31 @@
         e.preventDefault();
         const identifier = document.getElementById('identifier').value;
         const password = document.getElementById('password').value;
-        errorMessage.textContent = '';
+        
+        errorMessage.textContent = 'ログイン中...';
+        errorMessage.style.color = 'var(--font-secondary)';
 
         try {
-            // --- ステップ1: サーバーに問い合わせて、正しいメールアドレスを取得 ---
+            // ステップ1: サーバーに問い合わせて、正しいメールアドレスを取得
             const emailResponse = await fetch('/api/get-email-from-identifier', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ identifier: identifier })
             });
 
+            // サーバーからのレスポンスがNGなら、ここで処理を中断
             if (!emailResponse.ok) {
-                const errorData = await emailResponse.json();
-                throw new Error(errorData.message || 'ユーザーが見つかりません。');
+                // サーバー側で「ユーザーが見つからない」などのエラーが起きている
+                throw new Error('ログイン情報が正しくありません。');
             }
 
             const { email } = await emailResponse.json();
 
-            // --- ステップ2: 取得したメールアドレスと、入力されたパスワードでFirebaseにログイン ---
+            // ステップ2: 取得したメールアドレスとパスワードでFirebaseにログイン
             const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-            
             const idToken = await userCredential.user.getIdToken();
             
-            // reCAPTCHAトークンも一緒に送信
+            // ステップ3: reCAPTCHAトークンを取得して、最終的なログイン処理
             grecaptcha.ready(function() {
                 grecaptcha.execute('<%= firebaseConfig.recaptchaSiteKey %>', {action: 'login'}).then(async function(token) {
                     const sessionResponse = await fetch('/login', {
@@ -66,20 +68,16 @@
                     if (sessionResponse.ok) {
                         window.location.href = '/';
                     } else {
-                        const errorData = await sessionResponse.text();
-                        throw new Error('サーバーログインに失敗しました: ' + errorData);
+                        throw new Error('サーバーセッションの作成に失敗しました。');
                     }
                 });
             });
 
         } catch (error) {
-            console.error('ログイン処理エラー:', error);
-            // Firebase Authからのパスワード間違いエラーもここでキャッチされる
-            if (error.code === 'auth/wrong-password') {
-                errorMessage.textContent = 'メールアドレス/ユーザーIDまたはパスワードが正しくありません。';
-            } else {
-                errorMessage.textContent = error.message;
-            }
+            console.error('ログイン処理全体のエラー:', error);
+            errorMessage.style.color = '#ff4d4d';
+            // ▼▼▼ どんなエラーでも、ユーザーには同じメッセージを表示する ▼▼▼
+            errorMessage.textContent = 'ハンドル名（またはメールアドレス）かパスワードが正しくありません。';
         }
     });
 </script>

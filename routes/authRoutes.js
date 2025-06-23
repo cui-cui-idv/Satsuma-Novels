@@ -1,36 +1,35 @@
-// routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { verifyRecaptcha } = require('../middleware/authMiddleware');
+// ▼▼▼ この行で、必要なミドルウェアを全て読み込みます ▼▼▼
+const { isAuthenticated, verifyRecaptcha } = require('../middleware/authMiddleware');
 
 // 登録ページ表示
 router.get('/register', authController.showRegisterPage);
-// 登録処理
-router.post('/register', authController.registerUser);
+// クライアントでの登録後、Firestoreにデータを作成するためのAPI
+router.post('/register-firestore', verifyRecaptcha, authController.finalizeRegistration);
 
 // ログインページ表示
 router.get('/login', authController.showLoginPage);
 // ログイン処理 (IDトークンを受け取る)
-router.post('/login', authController.loginUser);
+router.post('/login', verifyRecaptcha, authController.loginUser);
+
+// ハンドル名またはメールアドレスから、メールアドレスを取得するAPI
+router.post('/api/get-email-from-identifier', authController.getEmailFromIdentifier);
 
 // ログアウト処理
 router.post('/logout', authController.logoutUser);
 
-// パスワードリセット要求ページを表示
+// パスワードリセット要求ページ
 router.get('/forgot-password', authController.showForgotPasswordPage);
-// パスワードリセット実行ページを表示
-router.get('/reset-password-action', authController.showResetPasswordPage);
 
-router.post('/register-firestore', authController.finalizeRegistration);
+// パスワードリセット実行ページ
+router.get('/reset-password-action', authController.showResetPasswordPage);
 
 // メール認証のアクションページ
 router.get('/verify-email-action', authController.showVerifyEmailPage);
 
-router.post('/login', verifyRecaptcha, authController.loginUser);
-router.post('/register-firestore', verifyRecaptcha, authController.finalizeRegistration);
-
-// ハンドル名またはメールアドレスから、メールアドレスを取得するAPI
-router.post('/api/get-email-from-identifier', authController.getEmailFromIdentifier);
+// メール認証を促すページを表示
+router.get('/please-verify', isAuthenticated, authController.showPleaseVerifyPage);
 
 module.exports = router;

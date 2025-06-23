@@ -944,3 +944,29 @@ a:hover {
         text-align: center;
     }
 }
+
+/* --- 未認証通知バナー --- */
+.unverified-banner {
+    background-color: #fff3cd;
+    color: #856404;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    top: 80px; /* ヘッダーの高さ分だけ下げる */
+    width: 100%;
+    z-index: 999;
+    font-size: 0.9rem;
+}
+.unverified-banner a {
+    color: #856404;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+/* メディアクエリ内にも追加 */
+@media screen and (max-width: 768px) {
+    .unverified-banner {
+        top: 69px; /* スマホ用ヘッダーの高さ */
+        padding: 0.75rem;
+    }
+}

@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageEl = document.getElementById('message');
     const wrapperEl = document.getElementById('register-wrapper');
 
-    registerForm.addEventListener('submit', async (e) => {
+    registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
         messageEl.textContent = '処理中です...';
         messageEl.style.color = 'var(--font-secondary)';
@@ -41,41 +41,66 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        try {
-            const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
-            await user.updateProfile({ displayName: username });
-            await user.sendEmailVerification();
+        // ▼▼▼ reCAPTCHAの実行を追加 ▼▼▼
+        grecaptcha.ready(function() {
+            grecaptcha.execute('<%= firebaseConfig.recaptchaSiteKey %>', {action: 'register'}).then(async function(token) {
+                
+                try {
+                    // 1. Firebase Authにユーザーを作成
+                    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
 
-            const response = await fetch('/register-firestore', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: user.uid, email: user.email, username: username, handle: handle })
+                    // 2. 作成したユーザーのプロフィール情報（表示名）を更新
+                    await user.updateProfile({ displayName: username });
+
+                    // 3. 確認メールを送信（カスタムURLを指定）
+                    const actionCodeSettings = {
+                        url: `${window.location.origin}/verify-email-action`,
+                        handleCodeInApp: true // ← これが入っていることが重要
+                        };
+                    await user.sendEmailVerification(actionCodeSettings);
+
+                    // 4. サーバーに通知してFirestoreにユーザーデータを作成
+                    const response = await fetch('/register-firestore', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            uid: user.uid, 
+                            email: user.email, 
+                            username: username, 
+                            handle: handle,
+                            recaptchaToken: token // reCAPTCHAトークンを追加
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        // サーバー側でエラーが起きた場合、Authに作成したユーザーを削除する
+                        await user.delete();
+                        throw new Error(errorData.message || 'データベースへの登録に失敗しました。');
+                    }
+
+                    // 登録成功メッセージを表示
+                    wrapperEl.innerHTML = `
+                        <div style="text-align: center;">
+                            <h2>登録ありがとうございます</h2>
+                            <p style="color: var(--font-secondary);">アカウントを有効にするため、<strong>${email}</strong> に送信された確認メール内のリンクをクリックしてください。</p>
+                            <a href="/login" class="btn btn-primary" style="margin-top: 2rem;">ログインページへ</a>
+                        </div>
+                    `;
+
+                } catch (error) {
+                    console.error('登録エラー:', error);
+                    messageEl.style.color = '#ff4d4d';
+                    if (error.code === 'auth/email-already-in-use') {
+                        messageEl.textContent = 'このメールアドレスは既に使用されています。';
+                    } else {
+                        messageEl.textContent = 'エラー: ' + error.message;
+                    }
+                }
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                // サーバー側でエラーが起きた場合、Authに作成したユーザーを削除するクリーンアップ処理
-                await user.delete();
-                throw new Error(errorData.message || 'データベースへの登録に失敗しました。');
-            }
-
-            wrapperEl.innerHTML = `
-                <div style="text-align: center;">
-                    <h2>登録ありがとうございます</h2>
-                    <p style="color: var(--font-secondary);">アカウントを有効にするため、<strong>${email}</strong> に送信された確認メール内のリンクをクリックしてください。</p>
-                    <a href="/login" class="btn btn-primary" style="margin-top: 2rem;">ログインページへ</a>
-                </div>
-            `;
-        } catch (error) {
-            console.error('登録エラー:', error);
-            messageEl.style.color = '#ff4d4d';
-            if (error.code === 'auth/email-already-in-use') {
-                messageEl.textContent = 'このメールアドレスは既に使用されています。';
-            } else {
-                messageEl.textContent = 'エラー: ' + error.message;
-            }
-        }
+        });
+        // ▲▲▲ reCAPTCHAの処理ここまで ▲▲▲
     });
 });
 </script>

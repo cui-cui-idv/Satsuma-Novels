@@ -1,34 +1,38 @@
 const express = require('express');
 const router = express.Router();
 const novelController = require('../controllers/novelController');
-// ▼ 1. isVerifiedも一緒に読み込む
 const { isAuthenticated, isVerified } = require('../middleware/authMiddleware');
 
 // --- 1. シリーズ作成ルート ---
-// 新しいシリーズの作成ページを表示
 router.get('/novels/new', isAuthenticated, isVerified, (req, res) => {
-    // isVerifiedを追加し、認証済みユーザーのみが作成できるようにする
     res.render('new-series', { title: '新しいシリーズを開始' });
 });
-
-// 新しいシリーズをDBに作成
 router.post('/novels', isAuthenticated, isVerified, novelController.createNovel);
 
 
 // --- 2. エピソード・編集・いいねなど、より具体的なルート ---
+// ★★★ ルートの順番を修正しました ★★★
+
 // 新しい話の投稿ページを表示
 router.get('/novels/:novelId/episodes/new', isAuthenticated, isVerified, novelController.showNewEpisodePage);
 
-// 新しい話をDBに作成
-router.post('/novels/:novelId/episodes', isAuthenticated, isVerified, novelController.createEpisode);
+// エピソード編集ページを表示（汎用的な :episodeId ルートより上に配置）
+router.get('/novels/:novelId/episodes/:episodeId/edit', isAuthenticated, novelController.showEpisodeEditPage);
 
 // エピソード閲覧ページを表示
 router.get('/novels/:novelId/episodes/:episodeId', novelController.showEpisodePage);
 
-// 小説編集ページを表示 (シリーズ情報の編集)
+// 新しい話をDBに作成
+router.post('/novels/:novelId/episodes', isAuthenticated, isVerified, novelController.createEpisode);
+
+// エピソードを更新
+router.post('/novels/:novelId/episodes/:episodeId/edit', isAuthenticated, novelController.updateEpisode);
+
+
+// シリーズ情報の編集ページを表示 (汎用的な :id ルートより上に配置)
 router.get('/novels/:id/edit', isAuthenticated, novelController.showNovelEditPage);
 
-// 小説を更新 (シリーズ情報の更新)
+// シリーズ情報を更新
 router.post('/novels/:id/edit', isAuthenticated, novelController.updateNovel);
 
 // いいね処理

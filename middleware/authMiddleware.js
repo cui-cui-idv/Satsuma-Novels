@@ -1,8 +1,11 @@
 const admin = require('firebase-admin');
-const axios = require('axios'); // axiosを読み込む
-const db = admin.firestore();
+const axios = require('axios');
+// dbは現在このファイルでは使われていないため、一旦コメントアウトまたは削除します。
+// const db = admin.firestore();
 
-// ユーザーがログインしているかチェックするミドルウェア
+/**
+ * ユーザーがログインしているかチェックするミドルウェア
+ */
 const isAuthenticated = (req, res, next) => {
     if (req.session.user) {
         return next();
@@ -10,9 +13,12 @@ const isAuthenticated = (req, res, next) => {
     res.redirect('/login');
 };
 
-// ユーザーが指定された役割を持っているかチェックするミドルウェア
+/**
+ * ユーザーが指定された役割を持っているかチェックするミドルウェア
+ * @param {string[]} roles 許可する役割の配列 (例: ['admin', 'moderator'])
+ */
 const hasRole = (roles) => {
-    return async (req, res, next) => {
+    return (req, res, next) => {
         if (!req.session.user) {
             return res.status(401).send('認証されていません');
         }
@@ -25,15 +31,26 @@ const hasRole = (roles) => {
     };
 };
 
-// ユーザーのメールアドレスが認証済みかチェックするミドルウェア
+/**
+ * ユーザーのメールアドレスが認証済みかチェックするミドルウェア
+ */
+// ▼▼▼ この行の "exports.isVerified =" を "const isVerified =" に修正 ▼▼▼
 const isVerified = (req, res, next) => {
-    if (req.session.user && (req.session.user.email_verified || req.session.user.role === 'admin')) {
+    // 管理者は認証チェックをスキップ
+    if (req.session.user && req.session.user.role === 'admin') {
         return next();
     }
-    res.status(403).send('この機能を利用するには、メールアドレスの認証を完了させてください。');
+    // email_verifiedがtrueならOK
+    if (req.session.user && req.session.user.email_verified) {
+        return next();
+    }
+    // 認証されていない場合は、専用ページにリダイレクト
+    res.redirect('/please-verify');
 };
 
-// reCAPTCHAトークンを検証するミドルウェア
+/**
+ * reCAPTCHAトークンを検証するミドルウェア
+ */
 const verifyRecaptcha = async (req, res, next) => {
     const token = req.body.recaptchaToken;
     if (!token) {
@@ -65,5 +82,5 @@ module.exports = {
   isAuthenticated,
   hasRole,
   isVerified,
-  verifyRecaptcha // verifyRecaptchaの関数定義と、ここのエクスポートがセット
+  verifyRecaptcha
 };
