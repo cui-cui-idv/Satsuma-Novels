@@ -159,3 +159,34 @@ exports.finalizeRegistration = async (req, res) => {
 exports.showVerifyEmailPage = (req, res) => {
     res.render('verify-email-action', { title: 'メールアドレスの確認' });
 };
+
+exports.getEmailFromIdentifier = async (req, res) => {
+    const { identifier } = req.body;
+
+    // もし入力がメールアドレス形式なら、そのまま返す
+    if (identifier.includes('@')) {
+        return res.json({ email: identifier });
+    }
+
+    // メールアドレス形式でない場合、ハンドル名として処理
+    try {
+        // 1. まずFirestoreを検索して、ハンドル名からユーザーのUIDを見つける
+        const snapshot = await db.collection('users').where('handle', '==', identifier).limit(1).get();
+
+        if (snapshot.empty) {
+            return res.status(404).json({ message: 'ユーザーが見つかりません。' });
+        }
+
+        const userId = snapshot.docs[0].id;
+
+        // 2.【ここが重要】見つけたUIDを使って、Firebase Authから最新のユーザー情報を取得
+        const userRecord = await admin.auth().getUser(userId);
+
+        // 3. 最新の正しいメールアドレスを返す
+        return res.json({ email: userRecord.email });
+
+    } catch (error) {
+        console.error("ハンドル名からのメール検索エラー:", error);
+        return res.status(500).json({ message: 'サーバーエラーが発生しました。' });
+    }
+};

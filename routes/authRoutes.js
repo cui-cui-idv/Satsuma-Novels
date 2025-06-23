@@ -30,4 +30,7 @@ router.get('/verify-email-action', authController.showVerifyEmailPage);
 router.post('/login', verifyRecaptcha, authController.loginUser);
 router.post('/register-firestore', verifyRecaptcha, authController.finalizeRegistration);
 
+// ハンドル名またはメールアドレスから、メールアドレスを取得するAPI
+router.post('/api/get-email-from-identifier', authController.getEmailFromIdentifier);
+
 module.exports = router;
