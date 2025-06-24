@@ -22,63 +22,49 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const auth = firebase.auth();
     const resendButton = document.getElementById('resend-email-button');
     const messageEl = document.getElementById('message');
 
-    let cooldown = false;
-
-    resendButton.addEventListener('click', () => {
-        // ▼▼▼ ボタンがクリックされた瞬間に、改めて現在のユーザー情報を取得する ▼▼▼
-        const user = firebase.auth().currentUser;
-
-        // もし、この時点でユーザー情報がなければ処理を中断
-        if (!user) {
-            messageEl.style.color = '#ff4d4d';
-            messageEl.textContent = 'エラー: ログイン状態を確認できませんでした。ページをリロードしてください。';
-            return;
-        }
-
-        if (cooldown) {
-            messageEl.textContent = '少し時間をおいてから再試行してください。';
-            messageEl.style.color = 'var(--font-secondary)';
-            return;
-        }
-
-        messageEl.textContent = '送信中です...';
-        messageEl.style.color = 'var(--font-secondary)';
-
-        const actionCodeSettings = {
-            url: `${window.location.origin}/verify-email-action`,
-            handleCodeInApp: true
-        };
-
-        user.sendEmailVerification(actionCodeSettings)
-            .then(() => {
-                messageEl.style.color = 'var(--accent-primary)';
-                messageEl.textContent = '確認メールを再送信しました。';
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            let cooldown = false;
+            resendButton.addEventListener('click', () => {
+                if (cooldown) return;
+                messageEl.textContent = '送信中です...';
                 
-                // 連打防止のため、ボタンを60秒間無効化
-                cooldown = true;
-                resendButton.disabled = true;
-                let seconds = 60;
-                resendButton.textContent = `再送信 (${seconds})`;
-
-                const interval = setInterval(() => {
-                    seconds--;
-                    resendButton.textContent = `再送信 (${seconds})`;
-                    if (seconds <= 0) {
-                        clearInterval(interval);
-                        resendButton.textContent = '確認メールを再送信';
-                        resendButton.disabled = false;
-                        cooldown = false;
-                    }
-                }, 1000);
-            })
-            .catch(error => {
-                console.error('メール再送信エラー:', error);
-                messageEl.style.color = '#ff4d4d';
-                messageEl.textContent = 'エラーが発生しました。時間をおいて再試行してください。';
+                // ▼▼▼ ここが重要 ▼▼▼
+                const actionCodeSettings = {
+                    url: `${window.location.origin}/verify-email-action`,
+                    handleCodeInApp: true
+                };
+                user.sendEmailVerification(actionCodeSettings)
+                    .then(() => {
+                        messageEl.style.color = 'var(--accent-primary)';
+                        messageEl.textContent = '確認メールを再送信しました。';
+                        cooldown = true;
+                        resendButton.disabled = true;
+                        let seconds = 60;
+                        resendButton.textContent = `再送信 (${seconds})`;
+                        const interval = setInterval(() => {
+                            seconds--;
+                            resendButton.textContent = `再送信 (${seconds})`;
+                            if (seconds <= 0) {
+                                clearInterval(interval);
+                                resendButton.textContent = '確認メールを再送信';
+                                resendButton.disabled = false;
+                                cooldown = false;
+                            }
+                        }, 1000);
+                    }).catch(error => {
+                        console.error('メール再送信エラー:', error);
+                        messageEl.style.color = '#ff4d4d';
+                        messageEl.textContent = 'エラーが発生しました。時間をおいて再試行してください。';
+                    });
             });
+        } else {
+            resendButton.disabled = true;
+        }
     });
 });
 </script>
