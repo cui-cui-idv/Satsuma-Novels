@@ -6,7 +6,7 @@ const db = admin.firestore();
 exports.generateSitemap = async (req, res) => {
     try {
         const links = [];
-        const baseUrl = `https://novel.militaris.work`; // ★ご自身の本番環境のURLに変更してください
+        const baseUrl = `https://novel.militaris.work`; // ご自身の本番環境のURL
 
         // 1. 静的なページのURLを追加
         const staticPages = ['/', '/privacy-policy', '/login', '/register'];
@@ -33,24 +33,28 @@ exports.generateSitemap = async (req, res) => {
         const novelsSnapshot = await db.collection('novels').where('status', '==', 'published').get();
         for (const novelDoc of novelsSnapshot.docs) {
             // シリーズの目次ページ
-            links.push({ url: `/novels/${novelDoc.id}`, changefreq: 'daily', priority: 0.9 });
+            links.push({ url: `/novels/${novelDoc.id}`, changefreq: 'daily', priority: 0.9, lastmod: novelDoc.data().lastUpdatedAt.toDate() });
             
             // 各エピソードのページ
             const episodesSnapshot = await db.collection('novels').doc(novelDoc.id).collection('episodes').where('status', '==', 'published').get();
             episodesSnapshot.forEach(episodeDoc => {
-                links.push({ url: `/novels/${novelDoc.id}/episodes/${episodeDoc.id}`, changefreq: 'daily', priority: 1.0 });
+                links.push({ url: `/novels/${novelDoc.id}/episodes/${episodeDoc.id}`, changefreq: 'daily', priority: 1.0, lastmod: episodeDoc.data().updatedAt.toDate() });
             });
         }
         
         // サイトマップのストリームを作成
         const stream = new SitemapStream({ hostname: baseUrl });
         
-        // XMLを生成してレスポンスとして送信
+        // ヘッダーを正しく設定
         res.header('Content-Type', 'application/xml');
-        const xml = await streamToPromise(Readable.from(links).pipe(stream)).then((data) =>
-            data.toString()
-        );
-        res.send(xml);
+        
+        // ストリームからXMLを生成
+        const xmlStream = Readable.from(links).pipe(stream);
+        
+        // ストリームをレスポンスに直接流す
+        xmlStream.pipe(res).on('error', (e) => {
+            throw e;
+        });
 
     } catch (error) {
         console.error('サイトマップの生成エラー:', error);
