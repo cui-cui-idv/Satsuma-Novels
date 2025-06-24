@@ -1,0 +1,115 @@
+<%- include('partials/header') %>
+
+<main class="container">
+    <div class="auth-container" style="min-height: 50vh;">
+        <div class="auth-form-wrapper" id="action-wrapper">
+            <h2 id="message-title">処理中...</h2>
+            <p id="message-body" style="color: var(--font-secondary); text-align: center;"></p>
+            
+            <div id="form-container"></div>
+
+            <div id="link-area" style="margin-top: 2rem; text-align: center;"></div>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const auth = firebase.auth();
+    const wrapper = document.getElementById('action-wrapper');
+    const titleEl = document.getElementById('message-title');
+    const bodyEl = document.getElementById('message-body');
+    const formContainer = document.getElementById('form-container');
+    const linkEl = document.getElementById('link-area');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const actionCode = urlParams.get('oobCode');
+
+    if (!actionCode) {
+        titleEl.textContent = 'エラー';
+        bodyEl.textContent = '無効なリンクです。';
+        linkEl.innerHTML = `<a href="/" class="btn btn-secondary">トップページへ</a>`;
+        return;
+    }
+
+    // URLの mode の値に応じて、処理を切り替える
+    switch (mode) {
+        case 'resetPassword':
+            handlePasswordReset(actionCode);
+            break;
+        case 'verifyEmail':
+            handleVerifyEmail(actionCode);
+            break;
+        default:
+            titleEl.textContent = 'エラー';
+            bodyEl.textContent = '不明なアクションです。';
+    }
+
+    // パスワードリセットの処理
+    function handlePasswordReset(code) {
+        auth.verifyPasswordResetCode(code).then(email => {
+            titleEl.textContent = '新しいパスワードを設定';
+            bodyEl.textContent = `アカウント (${email}) の新しいパスワードを入力してください。`;
+            // パスワード入力フォームを動的に生成
+            formContainer.innerHTML = `
+                <form id="reset-form" style="margin-top: 1.5rem;">
+                    <div class="input-group">
+                        <input type="password" id="new-password" required placeholder="新しいパスワード" style="text-align: center;">
+                    </div>
+                    <button type="submit" class="btn btn-primary">パスワードを更新</button>
+                </form>
+            `;
+            // 生成したフォームにイベントリスナーを設定
+            document.getElementById('reset-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newPassword = document.getElementById('new-password').value;
+                auth.confirmPasswordReset(code, newPassword).then(() => {
+                    wrapper.innerHTML = `<div style="text-align: center;"><h2>パスワードが更新されました</h2><p style="color: var(--font-secondary);">新しいパスワードでログインしてください。</p><a href="/login" class="btn btn-primary" style="margin-top: 2rem;">ログインページへ</a></div>`;
+                }).catch(error => {
+                    bodyEl.textContent = 'エラー: ' + error.message;
+                    bodyEl.style.color = '#ff4d4d';
+                });
+            });
+        }).catch(error => {
+            titleEl.textContent = '認証エラー';
+            bodyEl.textContent = 'このリンクは無効か、または有効期限が切れています。';
+            linkEl.innerHTML = `<a href="/forgot-password" class="btn btn-secondary">もう一度試す</a>`;
+        });
+    }
+
+    // メール認証の処理
+    function handleVerifyEmail(code) {
+        auth.applyActionCode(code)
+            .then(async () => { // ← async を追加
+                // --- ▼▼▼ ここからが新しいロジック ▼▼▼ ---
+                titleEl.textContent = '認証情報を更新中...';
+                bodyEl.textContent = '最終処理を行っています。';
+
+                const user = auth.currentUser;
+                if (user) {
+                    // 1. 最新の認証状態を反映したIDトークンを強制的に取得
+                    const refreshedIdToken = await user.getIdToken(true);
+
+                    // 2. 新しいIDトークンをサーバーに送り、セッションを更新する
+                    await fetch('/api/refresh-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ idToken: refreshedIdToken })
+                    });
+
+                    // 3. 全て完了後、成功メッセージを表示
+                    titleEl.textContent = '認証が完了しました！';
+                    bodyEl.textContent = 'ご登録ありがとうございます。全ての機能がご利用いただけます。';
+                    linkEl.innerHTML = `<a href="/profile" class="btn btn-primary">プロフィールへ進む</a>`;
+                }
+        }).catch(error => {
+            titleEl.textContent = '認証エラー';
+            bodyEl.textContent = 'このリンクは無効か、または有効期限が切れています。';
+            linkEl.innerHTML = `<a href="/please-verify" class="btn btn-secondary">確認メールを再送信する</a>`;
+        });
+    }
+});
+</script>

@@ -115,12 +115,6 @@ exports.showForgotPasswordPage = (req, res) => {
 };
 
 
-// パスワードリセット実行ページを表示
-exports.showResetPasswordPage = (req, res) => {
-    // このページでは、実際の処理はクライアントサイドのJavaScriptで行う
-    // oobCodeなどのクエリパラメータはJSで取得する
-    res.render('reset-password-action', { title: '新しいパスワードを設定' });
-};
 
 exports.finalizeRegistration = async (req, res) => {
     try {
@@ -155,12 +149,11 @@ exports.finalizeRegistration = async (req, res) => {
     }
 };
 
-// メール認証アクションページを表示
-exports.showVerifyEmailPage = (req, res) => {
-    res.render('verify-email-action', { title: 'メールアドレスの確認' });
+exports.showActionHandlerPage = (req, res) => {
+    // 必要なパラメータ(mode, oobCode)はURLに含まれているので、
+    // それを元にクライアントサイドJSが全ての処理を行う
+    res.render('actions', { title: 'アカウント操作' });
 };
-
-// controllers/authController.js
 
 exports.getEmailFromIdentifier = async (req, res) => {
     const { identifier } = req.body;
@@ -215,3 +208,32 @@ exports.showPleaseVerifyPage = (req, res) => {
     res.render('please-verify', { title: 'メールアドレスの確認' });
 };
 
+exports.refreshSession = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const uid = decodedToken.uid;
+
+        const userDoc = await db.collection('users').doc(uid).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: 'ユーザーデータが見つかりません。' });
+        }
+        const userData = userDoc.data();
+
+        // セッション情報を最新の状態に丸ごと更新
+        req.session.user = {
+            uid: uid,
+            email: userData.email,
+            username: userData.username,
+            role: userData.role,
+            handle: userData.handle,
+            email_verified: decodedToken.email_verified // ここが true に更新される
+        };
+
+        res.status(200).json({ success: true, message: 'セッションが更新されました。' });
+
+    } catch (error) {
+        console.error('セッションのリフレッシュエラー:', error);
+        res.status(500).json({ success: false, message: 'エラーが発生しました。' });
+    }
+};

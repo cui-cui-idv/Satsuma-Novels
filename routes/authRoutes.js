@@ -23,13 +23,14 @@ router.post('/logout', authController.logoutUser);
 // パスワードリセット要求ページ
 router.get('/forgot-password', authController.showForgotPasswordPage);
 
-// パスワードリセット実行ページ
-router.get('/reset-password-action', authController.showResetPasswordPage);
 
-// メール認証のアクションページ
-router.get('/verify-email-action', authController.showVerifyEmailPage);
 
 // メール認証を促すページを表示
 router.get('/please-verify', isAuthenticated, authController.showPleaseVerifyPage);
+
+// 全てのメールアクションを処理するページ
+router.get('/actions', authController.showActionHandlerPage);
+
+router.post('/api/refresh-session', isAuthenticated, authController.refreshSession);
 
 module.exports = router;

@@ -1,31 +1,50 @@
 <%- include('partials/header') %>
-<div class="auth-container">
-    <div class="auth-form-wrapper" id="message-wrapper" style="text-align: center;">
-        <h2 id="message-title">メールアドレスを確認中...</h2>
-        <p id="message-body" style="color: var(--font-secondary);"></p>
-        <div id="link-area"></div>
+
+<main class="container">
+    <div class="auth-container" style="min-height: 50vh;">
+        <div class="auth-form-wrapper" id="message-wrapper" style="text-align: center;">
+            
+            <h2 id="message-title">メールアドレスを確認中...</h2>
+            <p id="message-body" style="color: var(--font-secondary);"></p>
+            <div id="link-area" style="margin-top: 2rem;"></div>
+
+        </div>
     </div>
-</div>
+</main>
+
+<%- include('partials/footer') %>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const actionCode = urlParams.get('oobCode');
     const titleEl = document.getElementById('message-title');
     const bodyEl = document.getElementById('message-body');
     const linkEl = document.getElementById('link-area');
 
+    // 1. URLからアクションコードを取得
+    const urlParams = new URLSearchParams(window.location.search);
+    const actionCode = urlParams.get('oobCode');
+
+    if (!actionCode) {
+        titleEl.textContent = '認証エラー';
+        bodyEl.textContent = '無効なリンクです。パスワードリセットやメール認証は、それぞれのページからやり直してください。';
+        linkEl.innerHTML = `<a href="/" class="btn btn-secondary">トップページへ</a>`;
+        return;
+    }
+
+    // 2. Firebaseにコードを送信して、認証処理を実行
     firebase.auth().applyActionCode(actionCode)
         .then(() => {
+            // 成功した場合
             titleEl.textContent = '認証が完了しました！';
-            bodyEl.textContent = 'ご登録ありがとうございます。全ての機能がご利用いただけます。';
-            linkEl.innerHTML = `<a href="/profile" class="btn btn-primary" style="margin-top: 2rem;">プロフィールへ</a>`;
+            bodyEl.textContent = 'ご登録ありがとうございます。薩摩ノベルズの全ての機能がご利用いただけます。';
+            linkEl.innerHTML = `<a href="/profile" class="btn btn-primary">プロフィールへ進む</a>`;
         })
         .catch((error) => {
-            console.error(error);
+            // 失敗した場合
+            console.error("アクションコード適用エラー:", error);
             titleEl.textContent = '認証エラー';
-            bodyEl.textContent = 'このリンクは無効か、または有効期限が切れています。';
-            linkEl.innerHTML = `<a href="/" class="btn btn-secondary" style="margin-top: 2rem;">トップページへ</a>`;
+            bodyEl.textContent = 'このリンクは無効か、または有効期限が切れています。お手数ですが、もう一度操作をやり直してください。';
+            linkEl.innerHTML = `<a href="/" class="btn btn-secondary">トップページへ戻る</a>`;
         });
 });
 </script>
-<%- include('partials/footer') %>
