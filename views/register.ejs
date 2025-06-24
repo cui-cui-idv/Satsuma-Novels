@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // 3. 確認メールを送信（カスタムURLを指定）
                     const actionCodeSettings = {
-                        url: `${window.location.origin}/verify-email-action`,
+                        url: `${window.location.origin}/actions`,
                         handleCodeInApp: true // ← これが入っていることが重要
                         };
                     await user.sendEmailVerification(actionCodeSettings);
