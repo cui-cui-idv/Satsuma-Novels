@@ -15,4 +15,9 @@ router.get('/privacy-policy', (req, res) => {
     res.render('privacy-policy', { title: 'プライバシーポリシー' });
 });
 
+router.get('/disclaimer', (req, res) => {
+    res.render('disclaimer', { title: '免責事項' });
+});
+
+
 module.exports = router;
