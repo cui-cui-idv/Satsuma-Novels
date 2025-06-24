@@ -83,6 +83,7 @@ const historyRoutes = require('./routes/historyRoutes.js');
 const accountRoutes = require('./routes/accountRoutes.js');
 const searchRoutes = require('./routes/searchRoutes.js');
 const userRoutes = require('./routes/userRoutes.js');
+const sitemapRoutes = require('./routes/sitemapRoutes.js');
 
 app.use('/', indexRoutes);
 app.use('/', authRoutes);
@@ -95,6 +96,7 @@ app.use('/', historyRoutes);
 app.use('/', accountRoutes);
 app.use('/', searchRoutes);
 app.use('/', userRoutes);
+app.use('/', sitemapRoutes);
 
 // --- 404 Not Found ハンドラ ---
 app.use((req, res, next) => {
